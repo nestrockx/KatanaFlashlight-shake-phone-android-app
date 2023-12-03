@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                     shape = MaterialTheme.shapes.large
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Polska")
+                        Text(text = "Wykonaj ruch dwukrotnego cięcia")
                     }
                 }
             }
@@ -428,7 +428,7 @@ class MainActivity : ComponentActivity() {
     private fun getFlashlightMaximumStrengthLevel(): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val x: Int? = cameraManager?.getCameraCharacteristics(cameraId!!)?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL)
-            Prefs.setStrength(this, x!!)
+            Prefs.setMaximumStrength(this, x!!)
             x
         } else {
             1
