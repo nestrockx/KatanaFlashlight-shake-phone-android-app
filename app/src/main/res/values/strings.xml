@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">KatanaFlashlight</string>
+    <string name="title_activity_main">Katana</string>
+    <string name="slash_intensity">Slash intensity</string>
+    <string name="katana_is_running">Katana is running</string>
+    <string name="katana_dismissed">Katana service dismissed</string>
+    <string name="version">Version 1.0</string>
+    <string name="vibrations">Vibrations</string>
+    <string name="flashlight_not_available">Flashlight not available</string>
+    <string name="light_strength">Light strength</string>
+</resources>
