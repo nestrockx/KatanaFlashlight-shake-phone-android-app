@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                     shape = MaterialTheme.shapes.large
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Wykonaj ruch dwukrotnego cięcia")
+                        Text(text = "Wykonaj ruch cięcia dwukrotnie")
                     }
                 }
             }
