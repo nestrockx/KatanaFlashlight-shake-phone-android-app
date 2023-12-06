@@ -175,9 +175,9 @@ class FlashlightForegroundService : Service(), SensorEventListener {
                             motionStep1 = false
                             motionStep2 = false
                             coolDown = true
-                            handler.postDelayed({ coolDown = false }, 700)
+                            handler.postDelayed({ coolDown = false }, 500)
                         } else if (motionStep1) {
-                            handler.post(motionStepTwo())
+                            handler.postDelayed({ handler.post(motionStepTwo()) }, 300)
                         } else {
                             handler.post(motionStepOne())
                         }
@@ -221,14 +221,6 @@ class FlashlightForegroundService : Service(), SensorEventListener {
             }
         }
         return false
-    }
-
-    private fun getFlashlightMaximumStrengthLevel(): Int? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            cameraManager?.getCameraCharacteristics(cameraId!!)?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL)
-        } else {
-            1
-        }
     }
 
     private fun turnFlashlight() {

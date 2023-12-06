@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">KatanaFlashlight</string>
+    <string name="app_name">Katana Flashlight</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_intensity">Slash intensity</string>
     <string name="katana_is_running">Katana is running</string>
@@ -8,4 +8,7 @@
     <string name="vibrations">Vibrations</string>
     <string name="flashlight_not_available">Flashlight not available</string>
     <string name="light_strength">Light strength</string>
+    <string name="instruction">Perform double slash movement with your device to turn on/off the flashlight</string>
+    <string name="notification_permission_needed">Notification permission is needed for app to work in background</string>
+    <string name="allow_notification">Allow to work in background</string>
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Latarka Katana</string>
+    <string name="app_name">Katana Latarka</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_intensity">Siła machnięcia</string>
     <string name="katana_is_running">Katana jest uruchomiona</string>
@@ -8,5 +8,8 @@
     <string name="version">Wersja 1.0</string>
     <string name="vibrations">Wibracje</string>
     <string name="flashlight_not_available">Latarka niedostępna</string>
-    <string name="light_strength">Siła światła</string>
+    <string name="light_strength">Siła włączanego światła</string>
+    <string name="instruction">Wykonaj telefonem dwukrotny ruch cięcia(machnięcia) by w(y)łączyć latarkę</string>
+    <string name="notification_permission_needed">Pozwolenie na powiadomienia jest potrzebne by aplikacja działała w tle</string>
+    <string name="allow_notification">Zezwól na działanie w tle</string>
 </resources>
