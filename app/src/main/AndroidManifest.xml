@@ -7,11 +7,10 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <uses-feature android:name="android.hardware.sensor.accelerometer" />
     <uses-feature android:name="android.hardware.camera"
@@ -26,7 +25,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_katana"
         android:supportsRtl="true"
-        android:theme="@style/Theme.KatanaFlashlight"
+        android:theme="@style/Theme.KatanaFlashlight.Splash"
         tools:targetApi="34">
         <service
             android:name=".FlashlightForegroundService"
@@ -43,7 +42,7 @@
             android:exported="true"
             android:label="@string/title_activity_main"
             android:enableOnBackInvokedCallback="true"
-            android:theme="@style/Theme.KatanaFlashlight" >
+            android:theme="@style/Theme.KatanaFlashlight.Splash" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

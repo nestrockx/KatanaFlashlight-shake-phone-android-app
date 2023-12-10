@@ -11,6 +11,8 @@ import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -84,6 +86,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -158,7 +161,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun IntroDialog() {
-        val value by rememberInfiniteTransition(label = "").animateFloat(
+        val value by rememberInfiniteTransition(label = "slash animation").animateFloat(
             initialValue = 25f,
             targetValue = -25f,
             animationSpec = infiniteRepeatable(
@@ -167,7 +170,7 @@ class MainActivity : ComponentActivity() {
                     easing = LinearEasing
                 ),
                 repeatMode = RepeatMode.Reverse
-            ), label = ""
+            ), label = "slash animation value"
         )
         val openDialog = remember { mutableStateOf(!Prefs.getIntroDone(this)) }
 
@@ -191,7 +194,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_katana_with_handle),
-                            contentDescription = "",
+                            contentDescription = getString(R.string.animated_katana),
                             modifier = Modifier
                                 .size(50.dp)
                                 .graphicsLayer(
@@ -214,7 +217,7 @@ class MainActivity : ComponentActivity() {
     fun Wallpaper() {
         Image(
             painter = painterResource(id = R.drawable.katana),
-            contentDescription = "",
+            contentDescription = getString(R.string.katana_background),
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxSize()
@@ -236,7 +239,7 @@ class MainActivity : ComponentActivity() {
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(color = Color(1f, 1f, 1f, 0.75f))
         ) {
-            var intensity by remember { mutableFloatStateOf(0f) }
+            var intensity by remember { mutableFloatStateOf(5f) }
 
             Slider(
                 colors = SliderDefaults.colors(inactiveTrackColor = Color.Black, activeTrackColor = Color(
@@ -253,7 +256,7 @@ class MainActivity : ComponentActivity() {
                 },
                 enabled = true,
                 steps = 9,
-                valueRange = -5f..5f,
+                valueRange = 0f..10f,
                 modifier = Modifier
                     .padding(16.dp)
             )
@@ -269,7 +272,7 @@ class MainActivity : ComponentActivity() {
             Icon(
                 tint = Color(0.7f, 0.0f, 0.0f, 1.0f),
                 painter = painterResource(id = R.drawable.ic_menu),
-                contentDescription = "",
+                contentDescription = getString(R.string.menu_icon),
                 modifier = Modifier
                     .clickable(
                         onClick = destination,
@@ -379,9 +382,13 @@ class MainActivity : ComponentActivity() {
             onClick = { turnFlashlight() },
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
         ) {
-            Image(painter = painterResource(id = R.drawable.ic_katana_with_handle), contentDescription = "", modifier = Modifier
-                .wrapContentSize()
-                .padding(start = 32.dp, end = 32.dp, top = 8.dp, bottom = 8.dp))
+            Image(
+                painter = painterResource(R.drawable.ic_katana_with_handle),
+                contentDescription = getString(R.string.flash_button),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(start = 32.dp, end = 32.dp, top = 8.dp, bottom = 8.dp)
+            )
         }
     }
 
@@ -399,7 +406,6 @@ class MainActivity : ComponentActivity() {
     ) {
         val context = LocalContext.current
         var isPermissionGranted by remember { mutableStateOf(false) }
-
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
@@ -428,7 +434,6 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.size(16.dp))
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     if (!isPermissionGranted) {
                         RequestPermissionButton(
@@ -450,7 +455,6 @@ class MainActivity : ComponentActivity() {
                 VibrationSwitch()
                 SlashIntensity()
                 FlashButton()
-                
                 Spacer(modifier = Modifier.size(16.dp))
             }
         }
@@ -472,7 +476,7 @@ class MainActivity : ComponentActivity() {
             {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_back),
-                    contentDescription = "",
+                    contentDescription = getString(R.string.back_button),
                     tint = Color.White,
                     modifier = Modifier
                         .clickable(
@@ -494,7 +498,9 @@ class MainActivity : ComponentActivity() {
                         fullText = "Icons made from https://www.onlinewebfonts.com/icon svg icons is licensed by CC BY 4.0",
                         linkText = listOf("https://www.onlinewebfonts.com/icon"),
                         hyperlinks = listOf("https://www.onlinewebfonts.com/icon"),
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
                         fontSize = 16.sp,
                         linkTextColor = Color(0.0f, 0.184f, 0.733f, 1.0f)
                     )
@@ -518,6 +524,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        var time = true
+        installSplashScreen()
+            .setKeepOnScreenCondition {
+                val handler = Handler(Looper.getMainLooper())
+                handler.postDelayed({time = false}, 100)
+                return@setKeepOnScreenCondition time
+            }
+
         setContent {
             KatanaFlashlightTheme {
                 val navController = rememberNavController()
@@ -593,7 +607,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onIntensityChange(intensity: Float) {
-        Prefs.setThreshold(this, intensity * 1.2f + 10f)
+        val values = listOf(5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20)
+        Prefs.setThreshold(this, values[intensity.toInt()].toFloat())
     }
 
     private fun onStrengthChange(strength: Int) {

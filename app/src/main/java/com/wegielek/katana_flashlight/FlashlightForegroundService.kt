@@ -20,8 +20,10 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -30,6 +32,8 @@ import kotlin.math.sqrt
 
 
 class FlashlightForegroundService : Service(), SensorEventListener {
+
+    private lateinit var wakeLock: PowerManager.WakeLock
 
     private fun isCallActive(context: Context): Boolean {
         val manager = context.getSystemService(AUDIO_SERVICE) as AudioManager
@@ -41,6 +45,13 @@ class FlashlightForegroundService : Service(), SensorEventListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            TAG
+        )
+        wakeLock.acquire()
 
         if (intent?.extras?.getInt("close") == 1) {
             Toast.makeText(this, getString(R.string.katana_dismissed), Toast.LENGTH_SHORT).show()
@@ -78,6 +89,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
     override fun onDestroy() {
         super.onDestroy()
         sensorManager.unregisterListener(this)
+        wakeLock.release()
     }
 
     private fun startForegroundService() {
@@ -103,13 +115,19 @@ class FlashlightForegroundService : Service(), SensorEventListener {
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val action = NotificationCompat.Action.Builder(
+            0, getString(R.string.close), deletePendingIntent
+        ).build()
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentText(getString(R.string.katana_is_running))
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_katana_with_handle)
             .setNumber(0)
+            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setDeleteIntent(deletePendingIntent)
+            .setSilent(true)
+            .addAction(action)
             .build()
     }
 
@@ -129,6 +147,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
 
     companion object {
         private const val CHANNEL_ID = "ForegroundServiceChannel"
+        private val TAG: String = FlashlightForegroundService::class.java.getSimpleName()
     }
 
     private lateinit var sensorManager: SensorManager
@@ -140,44 +159,40 @@ class FlashlightForegroundService : Service(), SensorEventListener {
 
     override fun onSensorChanged(event: SensorEvent?) {
         if (!isCallActive(this)) {
-            // Check if the sensor type is accelerometer
             if (event?.sensor?.type == Sensor.TYPE_LINEAR_ACCELERATION) {
 
-                // Calculate linear acceleration values excluding gravity
                 val alpha = 0.8f
                 val gravity = FloatArray(3)
                 val linearAccelerationResult = FloatArray(3)
 
-                // Apply a low-pass filter to remove gravity contributions
                 gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0]
                 gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1]
                 gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2]
 
-                // Subtract the gravity to get linear acceleration
                 linearAccelerationResult[0] = event.values[0] - gravity[0]
                 linearAccelerationResult[1] = event.values[1] - gravity[1]
                 linearAccelerationResult[2] = event.values[2] - gravity[2]
 
-                // Use the linear acceleration values
                 val x = linearAccelerationResult[0]
                 val y = linearAccelerationResult[1]
                 val z = linearAccelerationResult[2]
 
-                // Do something with the linear acceleration values (x, y, z)
-                // For example, log/print them:
                 val avg = sqrt(x.pow(2) + y.pow(2))
-                println("acc $x $y $z")
+                Log.i("Sensor data:", "linear acceleration: $x $y $z")
 
                 if (!coolDown) {
                     if (avg >= Prefs.getThreshold(this)) {
-                        if (motionStep2) {
+                        if (motionStep3) {
                             turnFlashlight()
                             motionStep1 = false
                             motionStep2 = false
+                            motionStep3 = false
                             coolDown = true
                             handler.postDelayed({ coolDown = false }, 500)
+                        } else if (motionStep2) {
+                            handler.postDelayed({ handler.post(motionStepThree()) }, 100)
                         } else if (motionStep1) {
-                            handler.postDelayed({ handler.post(motionStepTwo()) }, 300)
+                            handler.postDelayed({ handler.post(motionStepTwo()) }, 100)
                         } else {
                             handler.post(motionStepOne())
                         }
@@ -194,6 +209,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
     private var coolDown: Boolean = false
     private var motionStep1: Boolean = false
     private var motionStep2: Boolean = false
+    private var motionStep3: Boolean = false
 
     private fun motionStepOne(): Runnable {
         motionStep1 = true
@@ -206,6 +222,13 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         motionStep2 = true
         return Runnable {
             handler.postDelayed({ motionStep2 = false }, 300)
+        }
+    }
+
+    private fun motionStepThree(): Runnable {
+        motionStep3 = true
+        return Runnable {
+            handler.postDelayed({ motionStep3 = false }, 300)
         }
     }
 
