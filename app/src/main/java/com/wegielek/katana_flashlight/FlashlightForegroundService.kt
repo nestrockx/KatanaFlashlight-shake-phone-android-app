@@ -115,19 +115,16 @@ class FlashlightForegroundService : Service(), SensorEventListener {
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val action = NotificationCompat.Action.Builder(
-            0, getString(R.string.close), deletePendingIntent
-        ).build()
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentText(getString(R.string.katana_is_running))
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_katana_with_handle)
-            .setNumber(0)
-            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
             .setSilent(true)
-            .addAction(action)
+            .setNumber(0)
+            .addAction(R.drawable.ic_katana_with_handle, getString(R.string.close), deletePendingIntent)
             .build()
     }
 

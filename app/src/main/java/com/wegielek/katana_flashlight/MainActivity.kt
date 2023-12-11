@@ -555,6 +555,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
         if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager?
             try {
