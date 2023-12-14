@@ -172,12 +172,12 @@ class MainActivity : ComponentActivity() {
                 repeatMode = RepeatMode.Reverse
             ), label = "slash animation value"
         )
-        val openDialog = remember { mutableStateOf(!Prefs.getIntroDone(this)) }
+        val openDialog = remember { mutableStateOf(!Prefs.getIntroDone(applicationContext)) }
 
         if (openDialog.value) {
             androidx.compose.material3.AlertDialog(
                 onDismissRequest = {
-                    Prefs.setIntroDone(this, true)
+                    Prefs.setIntroDone(applicationContext, true)
                     openDialog.value = false
                 }
             ) {
@@ -252,7 +252,6 @@ class MainActivity : ComponentActivity() {
                 onValueChange = {
                     intensity = it
                     onIntensityChange(it)
-                    startService()
                 },
                 enabled = true,
                 steps = 9,
@@ -288,8 +287,54 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
+    fun OnOffSwitch() {
+        var isOn by remember { mutableStateOf(Prefs.getKatanaOn(this)) }
+        Text(
+            text = getString(R.string.on_off),
+            fontSize = 20.sp,
+            color = Color.White,
+            textAlign = TextAlign.Left,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 32.dp, end = 32.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(start = 32.dp, end = 32.dp)
+                .background(shape = RoundedCornerShape(8.dp), color = Color(1f, 1f, 1f, 0.75f))
+                .padding(end = 8.dp)
+        )
+        {
+            Switch(
+                checked = isOn,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0.7f, 0f, 0f)
+                ),
+                onCheckedChange = {
+                    isOn = it
+                    onKatanaSwitch(it)
+                    if (isOn) {
+                        startService()
+                    } else {
+                        stopService(Intent(applicationContext, FlashlightForegroundService::class.java))
+                    }
+                },
+                enabled = true,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
+        }
+        Spacer(modifier = Modifier.size(10.dp))
+    }
+
+    private fun onKatanaSwitch(value: Boolean) {
+        Prefs.setKatanaOn(applicationContext, value)
+    }
+
+    @Composable
     fun VibrationSwitch() {
-        var isVibrationOn by remember { mutableStateOf(Prefs.getVibrationOn(this)) }
+        var isVibrationOn by remember { mutableStateOf(Prefs.getVibrationOn(applicationContext)) }
         Text(
             text = getString(R.string.vibrations),
             fontSize = 20.sp,
@@ -316,7 +361,6 @@ class MainActivity : ComponentActivity() {
                 onCheckedChange = {
                     isVibrationOn = it
                     onVibrationSwitch(it)
-                    startService()
                 },
                 enabled = true,
                 modifier = Modifier.align(Alignment.CenterEnd)
@@ -340,11 +384,10 @@ class MainActivity : ComponentActivity() {
             onValueChange = {
                 strength = it
                 onStrengthChange(it.toInt())
-                startService()
             },
             enabled = true,
-            steps = getFlashlightMaximumStrengthLevel() - 1,
-            valueRange = 0f..getFlashlightMaximumStrengthLevel().toFloat(),
+            steps = if (getFlashlightMaximumStrengthLevel() - 2 > 0) getFlashlightMaximumStrengthLevel() - 2 else 1,
+            valueRange = 1f..getFlashlightMaximumStrengthLevel().toFloat(),
             modifier = Modifier
                 .padding(16.dp)
         )
@@ -406,16 +449,26 @@ class MainActivity : ComponentActivity() {
     ) {
         val context = LocalContext.current
         var isPermissionGranted by remember { mutableStateOf(false) }
+        var requested by remember { mutableStateOf(false) }
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             isPermissionGranted = isGranted
+            if (Prefs.getKatanaOn(applicationContext)) {
+                startService()
+            }
+            val handler = Handler(Looper.getMainLooper())
+            handler.postDelayed({requested = true}, 100)
         }
 
         LaunchedEffect(key1 = true) {
             isPermissionGranted = checkNotificationPermission(context)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                if (Prefs.getKatanaOn(applicationContext)) {
+                    startService()
+                }
             }
         }
 
@@ -423,9 +476,14 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.primary
         ) {
-            IntroDialog()
             Wallpaper()
-            MenuIcon(navigateToScreenTwo)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (requested) {
+                    IntroDialog()
+                }
+            } else {
+                IntroDialog()
+            }
             Column (
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -452,11 +510,13 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 FlashlightStrengthSlider()
+                OnOffSwitch()
                 VibrationSwitch()
                 SlashIntensity()
                 FlashButton()
                 Spacer(modifier = Modifier.size(16.dp))
             }
+            MenuIcon(navigateToScreenTwo)
         }
     }
 
@@ -555,7 +615,6 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
         if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager?
             try {
@@ -564,19 +623,14 @@ class MainActivity : ComponentActivity() {
                 e.printStackTrace()
             }
         } else {
-            Toast.makeText(this, getString(R.string.flashlight_not_available), Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, getString(R.string.flashlight_not_available), Toast.LENGTH_SHORT).show()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        startService()
     }
 
     override fun onStop() {
         super.onStop()
-        if (!checkNotificationPermission(this)) {
-            stopService(Intent(this, FlashlightForegroundService::class.java))
+        if (!checkNotificationPermission(applicationContext)) {
+            stopService(Intent(applicationContext, FlashlightForegroundService::class.java))
         }
     }
 
@@ -594,26 +648,27 @@ class MainActivity : ComponentActivity() {
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!isMyServiceRunning(FlashlightForegroundService::class.java)) {
-                ContextCompat.startForegroundService(this,
-                    Intent(this, FlashlightForegroundService::class.java)
+                ContextCompat.startForegroundService(applicationContext,
+                    Intent(applicationContext, FlashlightForegroundService::class.java)
                 )
             }
             return
         }
         if (!isMyServiceRunning(FlashlightForegroundService::class.java)) {
-            ContextCompat.startForegroundService(this,
-                Intent(this, FlashlightForegroundService::class.java)
+            ContextCompat.startForegroundService(applicationContext,
+                Intent(applicationContext, FlashlightForegroundService::class.java)
             )
         }
     }
 
     private fun onIntensityChange(intensity: Float) {
         val values = listOf(5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20)
-        Prefs.setThreshold(this, values[intensity.toInt()].toFloat())
+        Prefs.setThreshold(applicationContext, values[intensity.toInt()].toFloat())
     }
 
     private fun onStrengthChange(strength: Int) {
-        Prefs.setStrength(this, strength)
+        Prefs.setStrength(applicationContext, strength)
+        Toast.makeText(applicationContext, strength.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
@@ -650,7 +705,7 @@ class MainActivity : ComponentActivity() {
     private fun getFlashlightMaximumStrengthLevel(): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val x: Int? = cameraManager?.getCameraCharacteristics(cameraId!!)?.get(CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL)
-            Prefs.setMaximumStrength(this, x!!)
+            Prefs.setMaximumStrength(applicationContext, x!!)
             x
         } else {
             1
@@ -658,24 +713,28 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun turnFlashlight() {
-        startService()
-        if (!Prefs.getFlashOn(this)) {
+        if (!Prefs.getFlashOn(applicationContext)) {
             try {
                 if (hasFlashlightStrengthLevels()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, Prefs.getStrength(this))
+                        try {
+                            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, Prefs.getStrength(this))
+                        } catch (e: IllegalArgumentException) {
+                            cameraManager?.setTorchMode(cameraId!!, true)
+                            e.printStackTrace()
+                        }
                     }
                 } else {
                     cameraManager?.setTorchMode(cameraId!!, true)
                 }
-                Prefs.setFlashOn(this, !Prefs.getFlashOn(this))
+                Prefs.setFlashOn(applicationContext, !Prefs.getFlashOn(applicationContext))
             } catch (e: CameraAccessException) {
                 e.printStackTrace()
             }
         } else {
             try {
                 cameraManager?.setTorchMode(cameraId!!, false)
-                Prefs.setFlashOn(this, !Prefs.getFlashOn(this))
+                Prefs.setFlashOn(applicationContext, !Prefs.getFlashOn(applicationContext))
             } catch (e: CameraAccessException) {
                 e.printStackTrace()
             }
@@ -683,7 +742,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onVibrationSwitch(boolean: Boolean) {
-        Prefs.setVibrationOn(this, boolean)
+        Prefs.setVibrationOn(applicationContext, boolean)
     }
 
     private fun requestIgnoreBatteryOptimizations() {

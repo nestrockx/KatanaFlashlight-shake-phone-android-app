@@ -10,11 +10,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <uses-feature android:name="android.hardware.sensor.accelerometer" />
-    <uses-feature android:name="android.hardware.camera"
-        android:required="false"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.flash" />
 
     <application
@@ -29,13 +27,8 @@
         tools:targetApi="34">
         <service
             android:name=".FlashlightForegroundService"
-            android:foregroundServiceType="specialUse"
             android:enabled="true"
             android:exported="false" >
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Special use is needed to provide app's core functionality of turning on and off flashlight on double phone shake."
-                />
         </service>
         <activity
             android:name=".MainActivity"

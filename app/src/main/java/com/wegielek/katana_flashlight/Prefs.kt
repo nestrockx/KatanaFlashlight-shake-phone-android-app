@@ -33,8 +33,18 @@ class Prefs {
             return getPrefs(context).getBoolean("vibration", false)
         }
 
+        fun setKatanaOn(context: Context, value: Boolean) {
+            getPrefs(context).edit().putBoolean("katana", value).apply()
+        }
+
+        fun getKatanaOn(context: Context): Boolean {
+            return getPrefs(context).getBoolean("katana", true)
+        }
+
         fun setStrength(context: Context, value: Int) {
-            getPrefs(context).edit().putInt("strength", value).apply()
+            if (value >= 1 && value <= getMaximumStrength(context)) {
+                getPrefs(context).edit().putInt("strength", value).apply()
+            }
         }
 
         fun getStrength(context: Context): Int {
@@ -45,7 +55,7 @@ class Prefs {
             getPrefs(context).edit().putInt("max_strength", value).apply()
         }
 
-        private fun getMaximumStrength(context: Context): Int {
+        fun getMaximumStrength(context: Context): Int {
             return getPrefs(context).getInt("max_strength", 1)
         }
 

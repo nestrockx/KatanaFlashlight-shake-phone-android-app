@@ -1,5 +1,5 @@
 [versions]
-agp = "8.3.0-alpha17"
+agp = "8.3.0-alpha18"
 coreSplashscreen = "1.0.1"
 kotlin = "1.9.21"
 coreKtx = "1.12.0"

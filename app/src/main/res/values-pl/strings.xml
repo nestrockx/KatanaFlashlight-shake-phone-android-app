@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">Wersja 1.03</string>
+    <string name="version">Wersja 1.05</string>
     <string name="app_name">Katana Latarka</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_intensity">Dostosuj siłę machnięcia</string>
@@ -13,6 +13,7 @@
     <string name="notification_permission_needed">Pozwolenie na powiadomienia jest potrzebne by aplikacja działała w tle</string>
     <string name="allow_notification">Zezwól na działanie w tle</string>
     <string name="close">Zamknij</string>
+    <string name="on_off">Włącz/wyłącz wykrywanie</string>
     <!--Content descriptions -->
     <string name="animated_katana">Animowana ikona katany wykonującej cięcie</string>
     <string name="katana_background">Obraz katany jako tło aplikacji</string>

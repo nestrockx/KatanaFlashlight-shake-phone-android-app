@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">Version 1.03</string>
+    <string name="version">Version 1.05</string>
     <string name="app_name">Katana Flashlight</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_intensity">Adjust slash intensity</string>
@@ -13,6 +13,7 @@
     <string name="notification_permission_needed">Notification permission is needed for app to work in background</string>
     <string name="allow_notification">Allow to work in background</string>
     <string name="close">Close</string>
+    <string name="on_off">On/off detection</string>
     <!--Content descriptions -->
     <string name="animated_katana">Animated katana slash icon</string>
     <string name="katana_background">Katana app background image</string>

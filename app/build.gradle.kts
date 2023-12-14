@@ -10,9 +10,9 @@ android {
     defaultConfig {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 4
-        versionName = "1.03"
+        targetSdk = 33
+        versionCode = 6
+        versionName = "1.05"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

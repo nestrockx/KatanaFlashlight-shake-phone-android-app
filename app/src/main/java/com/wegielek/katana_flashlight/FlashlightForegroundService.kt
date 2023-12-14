@@ -121,10 +121,9 @@ class FlashlightForegroundService : Service(), SensorEventListener {
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_katana_with_handle)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(R.drawable.ic_katana_with_handle, getString(R.string.close), deletePendingIntent)
             .setOngoing(true)
             .setSilent(true)
-            .setNumber(0)
-            .addAction(R.drawable.ic_katana_with_handle, getString(R.string.close), deletePendingIntent)
             .build()
     }
 
@@ -248,7 +247,12 @@ class FlashlightForegroundService : Service(), SensorEventListener {
             try {
                 if (hasFlashlightStrengthLevels()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, Prefs.getStrength(this))
+                        try {
+                            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, Prefs.getStrength(this))
+                        } catch (e: IllegalArgumentException) {
+                            cameraManager?.setTorchMode(cameraId!!, true)
+                            e.printStackTrace()
+                        }
                     }
                 } else {
                     cameraManager?.setTorchMode(cameraId!!, true)
