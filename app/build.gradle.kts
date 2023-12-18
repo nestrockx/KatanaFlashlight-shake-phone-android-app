@@ -11,8 +11,8 @@ android {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
         targetSdk = 33
-        versionCode = 6
-        versionName = "1.05"
+        versionCode = 7
+        versionName = "1.06"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

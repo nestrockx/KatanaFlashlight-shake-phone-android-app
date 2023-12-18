@@ -44,21 +44,27 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         return null
     }
 
+    private fun acquire(): Runnable{
+        return Runnable {
+            wakeLock.acquire(10*60*1000L)
+            handler.postDelayed(acquire(), 10*60*1000L)
+        }
+    }
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        handler = Handler(Looper.getMainLooper())
 
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             TAG
         )
-        wakeLock.acquire()
+        handler.post(acquire())
 
         if (intent?.extras?.getInt("close") == 1) {
             Toast.makeText(this, getString(R.string.katana_dismissed), Toast.LENGTH_SHORT).show()
             stopSelf()
         }
-
-        handler = Handler(Looper.getMainLooper())
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
@@ -89,6 +95,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
     override fun onDestroy() {
         super.onDestroy()
         sensorManager.unregisterListener(this)
+        handler.removeCallbacks(acquire())
         wakeLock.release()
     }
 
@@ -186,9 +193,9 @@ class FlashlightForegroundService : Service(), SensorEventListener {
                             coolDown = true
                             handler.postDelayed({ coolDown = false }, 500)
                         } else if (motionStep2) {
-                            handler.postDelayed({ handler.post(motionStepThree()) }, 100)
+                            handler.postDelayed({ handler.post(motionStepThree()) }, 150)
                         } else if (motionStep1) {
-                            handler.postDelayed({ handler.post(motionStepTwo()) }, 100)
+                            handler.postDelayed({ handler.post(motionStepTwo()) }, 150)
                         } else {
                             handler.post(motionStepOne())
                         }
@@ -210,21 +217,21 @@ class FlashlightForegroundService : Service(), SensorEventListener {
     private fun motionStepOne(): Runnable {
         motionStep1 = true
         return Runnable {
-            handler.postDelayed({ motionStep1 = false }, 300)
+            handler.postDelayed({ motionStep1 = false }, 200)
         }
     }
 
     private fun motionStepTwo(): Runnable {
         motionStep2 = true
         return Runnable {
-            handler.postDelayed({ motionStep2 = false }, 300)
+            handler.postDelayed({ motionStep2 = false }, 200)
         }
     }
 
     private fun motionStepThree(): Runnable {
         motionStep3 = true
         return Runnable {
-            handler.postDelayed({ motionStep3 = false }, 300)
+            handler.postDelayed({ motionStep3 = false }, 200)
         }
     }
 
