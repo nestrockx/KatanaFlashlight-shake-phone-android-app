@@ -5,15 +5,14 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -33,6 +32,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,9 +44,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -57,6 +56,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -92,11 +93,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wegielek.katana_flashlight.ui.theme.KatanaFlashlightTheme
 
-
 class MainActivity : ComponentActivity() {
 
     private var cameraManager: CameraManager? = null
     private var cameraId: String? = null
+    private var foregroundService: Intent? = null
 
     @Composable
     fun HyperlinkText(
@@ -144,13 +145,12 @@ class MainActivity : ComponentActivity() {
 
         val uriHandler = LocalUriHandler.current
 
-        ClickableText(
+        Text(
             style = TextStyle(textAlign = TextAlign.Center),
-            modifier = modifier,
             text = annotatedString,
-            onClick = {
+            modifier = modifier.clickable {
                 annotatedString
-                    .getStringAnnotations("URL", it, it)
+                    .getStringAnnotations("URL", 0, annotatedString.length)
                     .firstOrNull()?.let { stringAnnotation ->
                         uriHandler.openUri(stringAnnotation.item)
                     }
@@ -175,11 +175,10 @@ class MainActivity : ComponentActivity() {
         val openDialog = remember { mutableStateOf(!Prefs.getIntroDone(applicationContext)) }
 
         if (openDialog.value) {
-            androidx.compose.material3.AlertDialog(
-                onDismissRequest = {
-                    Prefs.setIntroDone(applicationContext, true)
-                    openDialog.value = false
-                }
+            BasicAlertDialog(onDismissRequest = {
+                Prefs.setIntroDone(applicationContext, true)
+                openDialog.value = false
+            }
             ) {
                 Surface(
                     modifier = Modifier
@@ -228,14 +227,21 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun SlashIntensity() {
+        val configuration = LocalConfiguration.current
+        val padding = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            PaddingValues(horizontal = 96.dp)
+        } else {
+            PaddingValues(horizontal = 32.dp)
+        }
+
         Text(text = getString(R.string.slash_intensity), color = Color.White, fontSize = 20.sp, textAlign = TextAlign.Left, modifier = Modifier
-            .padding(start = 32.dp, end = 32.dp)
+            .padding(padding)
             .fillMaxWidth())
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .padding(start = 32.dp, end = 32.dp)
+                .padding(padding)
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(color = Color(1f, 1f, 1f, 0.75f))
         ) {
@@ -275,8 +281,8 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .clickable(
                         onClick = destination,
-                        interactionSource = MutableInteractionSource(),
-                        indication = rememberRipple(bounded = false)
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = ripple(bounded = false)
                     )
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
@@ -288,7 +294,20 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun OnOffSwitch() {
-        var isOn by remember { mutableStateOf(Prefs.getKatanaOn(this)) }
+        var isOn by remember { mutableStateOf(Prefs.getKatanaOn(applicationContext)) }
+
+        val configuration = LocalConfiguration.current
+        val padding = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            PaddingValues(horizontal = 96.dp)
+        } else {
+            PaddingValues(horizontal = 32.dp)
+        }
+        val paddingText = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            PaddingValues(start = 96.dp, end = 96.dp, top = 64.dp)
+        } else {
+            PaddingValues(horizontal = 32.dp)
+        }
+
         Text(
             text = getString(R.string.on_off),
             fontSize = 20.sp,
@@ -296,13 +315,13 @@ class MainActivity : ComponentActivity() {
             textAlign = TextAlign.Left,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 32.dp, end = 32.dp)
+                .padding(if(hasFlashlightStrengthLevels()) {padding} else {paddingText})
         )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(start = 32.dp, end = 32.dp)
+                .padding(padding)
                 .background(shape = RoundedCornerShape(8.dp), color = Color(1f, 1f, 1f, 0.75f))
                 .padding(end = 8.dp)
         )
@@ -313,12 +332,26 @@ class MainActivity : ComponentActivity() {
                     checkedThumbColor = Color(0.7f, 0f, 0f)
                 ),
                 onCheckedChange = {
-                    isOn = it
-                    onKatanaSwitch(it)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && checkCameraPermission(applicationContext) && checkNotificationPermission(applicationContext)) {
+                        isOn = it
+                        onKatanaSwitch(it)
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && checkNotificationPermission(applicationContext)) {
+                        isOn = it
+                        onKatanaSwitch(it)
+                    } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                        isOn = it
+                        onKatanaSwitch(it)
+                    } else {
+                        Toast.makeText(applicationContext, getString(R.string.lack_permissions), Toast.LENGTH_SHORT).show()
+                        return@Switch
+                    }
+
                     if (isOn) {
                         startService()
                     } else {
-                        stopService(Intent(applicationContext, FlashlightForegroundService::class.java))
+                        if (foregroundService != null) {
+                            stopService(foregroundService)
+                        }
                     }
                 },
                 enabled = true,
@@ -335,6 +368,13 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun VibrationSwitch() {
         var isVibrationOn by remember { mutableStateOf(Prefs.getVibrationOn(applicationContext)) }
+        val configuration = LocalConfiguration.current
+        val padding = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            PaddingValues(horizontal = 96.dp)
+        } else {
+            PaddingValues(horizontal = 32.dp)
+        }
+
         Text(
             text = getString(R.string.vibrations),
             fontSize = 20.sp,
@@ -342,13 +382,13 @@ class MainActivity : ComponentActivity() {
             textAlign = TextAlign.Left,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 32.dp, end = 32.dp)
+                .padding(padding)
         )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(start = 32.dp, end = 32.dp)
+                .padding(padding)
                 .background(shape = RoundedCornerShape(8.dp), color = Color(1f, 1f, 1f, 0.75f))
                 .padding(end = 8.dp)
         )
@@ -395,6 +435,18 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun FlashlightStrengthSlider() {
+        val configuration = LocalConfiguration.current
+        val padding = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            PaddingValues(horizontal = 96.dp)
+        } else {
+            PaddingValues(horizontal = 32.dp)
+        }
+        val paddingText = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            PaddingValues(start = 96.dp, end = 96.dp, top = 64.dp)
+        } else {
+            PaddingValues(horizontal = 32.dp)
+        }
+
         if (hasFlashlightStrengthLevels()) {
             Text(
                 text = getString(R.string.light_strength),
@@ -403,13 +455,13 @@ class MainActivity : ComponentActivity() {
                 textAlign = TextAlign.Left,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 32.dp, end = 32.dp)
+                    .padding(paddingText)
             )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .padding(start = 32.dp, end = 32.dp)
+                    .padding(padding)
                     .clip(shape = RoundedCornerShape(10.dp))
                     .background(color = Color(1f, 1f, 1f, 0.75f))
             ) {
@@ -422,7 +474,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun FlashButton() {
         Button(
-            onClick = { turnFlashlight() },
+            onClick = { updateFlashlight(true) },
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)
         ) {
             Image(
@@ -444,32 +496,48 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ScreenOne(
+    fun LandingPage(
         navigateToScreenTwo: () -> Unit
     ) {
         val context = LocalContext.current
-        var isPermissionGranted by remember { mutableStateOf(false) }
-        var requested by remember { mutableStateOf(false) }
-        val launcher = rememberLauncherForActivityResult(
+
+        var isCameraPermissionGranted by remember { mutableStateOf(false) }
+        var cameraRequested by remember { mutableStateOf(false) }
+        val cameraLauncher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
-            isPermissionGranted = isGranted
-            if (Prefs.getKatanaOn(applicationContext)) {
-                startService()
-            }
-            val handler = Handler(Looper.getMainLooper())
-            handler.postDelayed({requested = true}, 100)
-        }
-
-        LaunchedEffect(key1 = true) {
-            isPermissionGranted = checkNotificationPermission(context)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
+            isCameraPermissionGranted = isGranted
+            if (isGranted) {
                 if (Prefs.getKatanaOn(applicationContext)) {
                     startService()
                 }
+                val handler = Handler(Looper.getMainLooper())
+                handler.postDelayed({ cameraRequested = true }, 100)
             }
+        }
+
+        var isNotificationPermissionGranted by remember { mutableStateOf(false) }
+        var notificationRequested by remember { mutableStateOf(false) }
+        val notificationLauncher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            isNotificationPermissionGranted = isGranted
+            if (isGranted) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    cameraLauncher.launch(Manifest.permission.CAMERA)
+                } else {
+                    if (Prefs.getKatanaOn(applicationContext)) {
+                        startService()
+                    }
+                    val handler = Handler(Looper.getMainLooper())
+                    handler.postDelayed({ notificationRequested = true }, 100)
+                }
+            }
+        }
+
+        LaunchedEffect(key1 = true) {
+            isNotificationPermissionGranted = checkNotificationPermission(context)
+            isCameraPermissionGranted = checkCameraPermission(context)
         }
 
         Surface(
@@ -477,8 +545,12 @@ class MainActivity : ComponentActivity() {
             color = MaterialTheme.colorScheme.primary
         ) {
             Wallpaper()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (requested) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                if (cameraRequested) {
+                    IntroDialog()
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (notificationRequested) {
                     IntroDialog()
                 }
             } else {
@@ -492,19 +564,19 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState())
             ) {
                 Spacer(modifier = Modifier.size(16.dp))
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (!isPermissionGranted) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    if (!isNotificationPermissionGranted || !isCameraPermissionGranted) {
                         RequestPermissionButton(
                             onClick = {
-                                when (PackageManager.PERMISSION_GRANTED) {
-                                    ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.POST_NOTIFICATIONS
-                                    ) -> { }
-                                    else -> {
-                                        launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                    }
-                                }
+                                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        )
+                    }
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!isNotificationPermissionGranted) {
+                        RequestPermissionButton(
+                            onClick = {
+                                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
                         )
                     }
@@ -540,8 +612,8 @@ class MainActivity : ComponentActivity() {
                     tint = Color.White,
                     modifier = Modifier
                         .clickable(
-                            interactionSource = MutableInteractionSource(),
-                            indication = rememberRipple(bounded = false),
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = ripple(bounded = false),
                             onClick = navigateBack
                         )
                         .align(Alignment.TopStart)
@@ -584,6 +656,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         var time = true
         installSplashScreen()
             .setKeepOnScreenCondition {
@@ -592,12 +665,14 @@ class MainActivity : ComponentActivity() {
                 return@setKeepOnScreenCondition time
             }
 
+
+
         setContent {
             KatanaFlashlightTheme {
                 val navController = rememberNavController()
-                NavHost(navController = navController, startDestination = Route.SCREEN_ONE) {
+                NavHost(modifier = Modifier.fillMaxSize(), navController = navController, startDestination = Route.SCREEN_ONE) {
                     composable(route = Route.SCREEN_ONE) {
-                        ScreenOne(navigateToScreenTwo = {
+                        LandingPage(navigateToScreenTwo = {
                             navController.navigate(Route.SCREEN_TWO)
                         })
                     }
@@ -616,7 +691,7 @@ class MainActivity : ComponentActivity() {
         }
 
         if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager?
+            cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager?
             try {
                 cameraId = cameraManager?.cameraIdList?.get(0)
             } catch (e: CameraAccessException) {
@@ -627,10 +702,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
     override fun onStop() {
         super.onStop()
         if (!checkNotificationPermission(applicationContext)) {
-            stopService(Intent(applicationContext, FlashlightForegroundService::class.java))
+            stopService(foregroundService)
         }
     }
 
@@ -645,19 +724,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun checkCameraPermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (!isMyServiceRunning(FlashlightForegroundService::class.java)) {
-                ContextCompat.startForegroundService(applicationContext,
-                    Intent(applicationContext, FlashlightForegroundService::class.java)
-                )
+                foregroundService = Intent(applicationContext, FlashlightForegroundService::class.java)
+                foregroundService?.let { ContextCompat.startForegroundService(applicationContext, it) }
             }
             return
         }
         if (!isMyServiceRunning(FlashlightForegroundService::class.java)) {
-            ContextCompat.startForegroundService(applicationContext,
-                Intent(applicationContext, FlashlightForegroundService::class.java)
-            )
+            foregroundService = Intent(applicationContext, FlashlightForegroundService::class.java)
+            foregroundService?.let { ContextCompat.startForegroundService(applicationContext, it) }
         }
     }
 
@@ -668,7 +756,8 @@ class MainActivity : ComponentActivity() {
 
     private fun onStrengthChange(strength: Int) {
         Prefs.setStrength(applicationContext, strength)
-        Toast.makeText(applicationContext, strength.toString(), Toast.LENGTH_SHORT).show()
+        updateFlashlight(false)
+//        Toast.makeText(applicationContext, strength.toString(), Toast.LENGTH_SHORT).show()
     }
 
     private fun isMyServiceRunning(serviceClass: Class<*>): Boolean {
@@ -712,13 +801,46 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun turnFlashlight() {
-        if (!Prefs.getFlashOn(applicationContext)) {
+    private fun updateFlashlight(toggle: Boolean) {
+        if  (toggle) {
+            if (!Prefs.getFlashOn(applicationContext)) {
+                try {
+                    if (hasFlashlightStrengthLevels()) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            try {
+                                cameraManager?.turnOnTorchWithStrengthLevel(
+                                    cameraId!!,
+                                    Prefs.getStrength(this)
+                                )
+                            } catch (e: IllegalArgumentException) {
+                                cameraManager?.setTorchMode(cameraId!!, true)
+                                e.printStackTrace()
+                            }
+                        }
+                    } else {
+                        cameraManager?.setTorchMode(cameraId!!, true)
+                    }
+                    Prefs.setFlashOn(applicationContext, !Prefs.getFlashOn(applicationContext))
+                } catch (e: CameraAccessException) {
+                    e.printStackTrace()
+                }
+            } else {
+                try {
+                    cameraManager?.setTorchMode(cameraId!!, false)
+                    Prefs.setFlashOn(applicationContext, !Prefs.getFlashOn(applicationContext))
+                } catch (e: CameraAccessException) {
+                    e.printStackTrace()
+                }
+            }
+        } else if (Prefs.getFlashOn(applicationContext)) {
             try {
                 if (hasFlashlightStrengthLevels()) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         try {
-                            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, Prefs.getStrength(this))
+                            cameraManager?.turnOnTorchWithStrengthLevel(
+                                cameraId!!,
+                                Prefs.getStrength(this)
+                            )
                         } catch (e: IllegalArgumentException) {
                             cameraManager?.setTorchMode(cameraId!!, true)
                             e.printStackTrace()
@@ -727,14 +849,6 @@ class MainActivity : ComponentActivity() {
                 } else {
                     cameraManager?.setTorchMode(cameraId!!, true)
                 }
-                Prefs.setFlashOn(applicationContext, !Prefs.getFlashOn(applicationContext))
-            } catch (e: CameraAccessException) {
-                e.printStackTrace()
-            }
-        } else {
-            try {
-                cameraManager?.setTorchMode(cameraId!!, false)
-                Prefs.setFlashOn(applicationContext, !Prefs.getFlashOn(applicationContext))
             } catch (e: CameraAccessException) {
                 e.printStackTrace()
             }
@@ -743,15 +857,5 @@ class MainActivity : ComponentActivity() {
 
     private fun onVibrationSwitch(boolean: Boolean) {
         Prefs.setVibrationOn(applicationContext, boolean)
-    }
-
-    private fun requestIgnoreBatteryOptimizations() {
-        startActivity(
-            Intent(
-                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse(
-                    "package:$packageName"
-                )
-            )
-        )
     }
 }

@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.wegielek.katana_flashlight"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
-        targetSdk = 33
-        versionCode = 7
-        versionName = "1.06"
+        targetSdk = 35
+        versionCode = 10
+        versionName = "1.09"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -63,6 +63,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
 
         if (intent?.extras?.getInt("close") == 1) {
             Toast.makeText(this, getString(R.string.katana_dismissed), Toast.LENGTH_SHORT).show()
+            Prefs.setKatanaOn(applicationContext, false)
             stopSelf()
         }
 
@@ -70,7 +71,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
         if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager?
+            cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager?
             try {
                 cameraId = cameraManager?.cameraIdList?.get(0)
             } catch (e: CameraAccessException) {
@@ -186,7 +187,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
                 if (!coolDown) {
                     if (avg >= Prefs.getThreshold(this)) {
                         if (motionStep3) {
-                            turnFlashlight()
+                            toggleFlashlight()
                             motionStep1 = false
                             motionStep2 = false
                             motionStep3 = false
@@ -249,7 +250,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         return false
     }
 
-    private fun turnFlashlight() {
+    private fun toggleFlashlight() {
         if (!Prefs.getFlashOn(this)) {
             try {
                 if (hasFlashlightStrengthLevels()) {

@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">Wersja 1.06</string>
+    <string name="version">Wersja 1.08</string>
     <string name="app_name">Katana Latarka</string>
     <string name="title_activity_main">Katana</string>
-    <string name="slash_intensity">Dostosuj siłę machnięcia</string>
-    <string name="katana_is_running">Zamknij powiadomienie by zatrzymać Katanę</string>
-    <string name="katana_dismissed">Aplikacja katana została zatrzymana</string>
+    <string name="slash_intensity">Dostosuj czułość potrząśnięcia</string>
+    <string name="katana_is_running">Wykrywanie potrząśnięć telefonu jest włączone</string>
+    <string name="katana_dismissed">Wykrywanie potrząśnięć zostało wyłączone</string>
     <string name="vibrations">Wibracje</string>
     <string name="flashlight_not_available">Latarka niedostępna</string>
-    <string name="light_strength">Siła włączanego światła</string>
-    <string name="instruction">Wykonaj telefonem dwukrotny szybki lub jeden dłuższy ruch cięcia(machnięcia) by w(y)łączyć latarkę</string>
+    <string name="light_strength">Jasność latarki</string>
+    <string name="instruction">Wykonaj telefonem dwukrotny szybki lub jeden dłuższy ruch cięcia(potrząśnij) by w(y)łączyć latarkę</string>
     <string name="notification_permission_needed">Pozwolenie na powiadomienia jest potrzebne by aplikacja działała w tle</string>
-    <string name="allow_notification">Zezwól na działanie w tle</string>
-    <string name="close">Zamknij</string>
-    <string name="on_off">Włącz/wyłącz wykrywanie</string>
+    <string name="allow_notification">Udziel koniecznych pozwoleń</string>
+    <string name="close">Wyłącz</string>
+    <string name="on_off">W(y)łącz wykrywanie potrząśnięcia</string>
+    <string name="lack_permissions">Brak potrzebnych pozwoleń</string>
+
     <!--Content descriptions -->
     <string name="animated_katana">Animowana ikona katany wykonującej cięcie</string>
     <string name="katana_background">Obraz katany jako tło aplikacji</string>
