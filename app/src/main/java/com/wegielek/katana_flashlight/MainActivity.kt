@@ -50,6 +50,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -669,22 +670,33 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             KatanaFlashlightTheme {
-                val navController = rememberNavController()
-                NavHost(modifier = Modifier.fillMaxSize(), navController = navController, startDestination = Route.SCREEN_ONE) {
-                    composable(route = Route.SCREEN_ONE) {
-                        LandingPage(navigateToScreenTwo = {
-                            navController.navigate(Route.SCREEN_TWO)
-                        })
-                    }
-                    composable(route = Route.SCREEN_TWO) {
-                        ScreenTwo (
-                            navigateToScreenOne = {
-                                navController.navigate(Route.SCREEN_ONE)
-                            },
-                            navigateBack = {
-                                onBackPressedDispatcher.onBackPressed()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.primary
+                    ) {
+                        val navController = rememberNavController()
+                        NavHost(
+                            modifier = Modifier.fillMaxSize().padding(innerPadding),
+                            navController = navController,
+                            startDestination = Route.SCREEN_ONE
+                        ) {
+                            composable(route = Route.SCREEN_ONE) {
+                                LandingPage(navigateToScreenTwo = {
+                                    navController.navigate(Route.SCREEN_TWO)
+                                })
                             }
-                        )
+                            composable(route = Route.SCREEN_TWO) {
+                                ScreenTwo(
+                                    navigateToScreenOne = {
+                                        navController.navigate(Route.SCREEN_ONE)
+                                    },
+                                    navigateBack = {
+                                        onBackPressedDispatcher.onBackPressed()
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">Wersja 1.08</string>
+    <string name="version">Wersja 1.1</string>
     <string name="app_name">Katana Latarka</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_intensity">Dostosuj czułość potrząśnięcia</string>

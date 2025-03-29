@@ -290,7 +290,6 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v.vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
-            @Suppress("DEPRECATION")
             v.vibrate(300)
         }
     }
