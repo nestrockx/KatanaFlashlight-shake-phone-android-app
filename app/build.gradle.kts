@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -11,8 +12,8 @@ android {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
         targetSdk = 35
-        versionCode = 11
-        versionName = "1.1"
+        versionCode = 12
+        versionName = "1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

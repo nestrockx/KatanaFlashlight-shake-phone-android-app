@@ -246,7 +246,7 @@ class MainActivity : ComponentActivity() {
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(color = Color(1f, 1f, 1f, 0.75f))
         ) {
-            var intensity by remember { mutableFloatStateOf(5f) }
+            var intensity by remember { mutableFloatStateOf(Prefs.getThreshold(applicationContext)/3-3) }
 
             Slider(
                 colors = SliderDefaults.colors(inactiveTrackColor = Color.Black, activeTrackColor = Color(
@@ -762,7 +762,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onIntensityChange(intensity: Float) {
-        val values = listOf(5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20)
+        val values = listOf(9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39)
         Prefs.setThreshold(applicationContext, values[intensity.toInt()].toFloat())
     }
 

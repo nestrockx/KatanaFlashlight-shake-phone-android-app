@@ -30,7 +30,6 @@ import androidx.core.content.ContextCompat
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-
 class FlashlightForegroundService : Service(), SensorEventListener {
 
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -95,6 +94,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
 
     override fun onDestroy() {
         super.onDestroy()
+        Prefs.setKatanaOn(applicationContext, false)
         sensorManager.unregisterListener(this)
         handler.removeCallbacks(acquire())
         wakeLock.release()
@@ -290,6 +290,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             v.vibrate(VibrationEffect.createOneShot(300, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
+            @Suppress("DEPRECATION")
             v.vibrate(300)
         }
     }
