@@ -4,8 +4,9 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.wegielek.katanaflashlight.FlashlightForegroundService
 import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.domain.ServiceController
+import com.wegielek.katanaflashlight.service.FlashlightForegroundService
 
 class AndroidServiceController(
     private val context: Context,

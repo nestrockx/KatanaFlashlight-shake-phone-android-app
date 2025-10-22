@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.data
+package com.wegielek.katanaflashlight.domain
 
 interface FlashlightController {
     fun initialize()

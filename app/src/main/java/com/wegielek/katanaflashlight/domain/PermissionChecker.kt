@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight.data
+package com.wegielek.katanaflashlight.domain
 
 // PermissionChecker.kt
 interface PermissionChecker {

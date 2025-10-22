@@ -1,4 +1,4 @@
-package com.wegielek.katanaflashlight
+package com.wegielek.katanaflashlight.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -27,6 +27,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.wegielek.katanaflashlight.MainActivity
+import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.R
 import kotlin.math.pow
 import kotlin.math.sqrt
 

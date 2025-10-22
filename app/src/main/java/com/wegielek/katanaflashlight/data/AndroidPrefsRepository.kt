@@ -2,6 +2,7 @@ package com.wegielek.katanaflashlight.data
 
 import android.content.Context
 import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.domain.PrefsRepository
 
 class AndroidPrefsRepository(
     private val context: Context,

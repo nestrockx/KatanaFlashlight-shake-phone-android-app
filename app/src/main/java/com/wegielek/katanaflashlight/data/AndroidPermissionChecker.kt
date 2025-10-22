@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.ContextCompat
+import com.wegielek.katanaflashlight.domain.PermissionChecker
 
 class AndroidPermissionChecker(
     private val context: Context,

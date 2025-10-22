@@ -6,6 +6,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
 import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.domain.FlashlightController
 
 class AndroidFlashlightController(
     private val context: Context,

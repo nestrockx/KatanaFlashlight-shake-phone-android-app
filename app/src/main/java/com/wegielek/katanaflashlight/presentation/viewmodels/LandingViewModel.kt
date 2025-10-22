@@ -1,10 +1,10 @@
 package com.wegielek.katanaflashlight.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
-import com.wegielek.katanaflashlight.data.FlashlightController
-import com.wegielek.katanaflashlight.data.PermissionChecker
-import com.wegielek.katanaflashlight.data.PrefsRepository
-import com.wegielek.katanaflashlight.data.ServiceController
+import com.wegielek.katanaflashlight.domain.FlashlightController
+import com.wegielek.katanaflashlight.domain.PermissionChecker
+import com.wegielek.katanaflashlight.domain.PrefsRepository
+import com.wegielek.katanaflashlight.domain.ServiceController
 
 class LandingViewModel(
     private val flashlightController: FlashlightController,

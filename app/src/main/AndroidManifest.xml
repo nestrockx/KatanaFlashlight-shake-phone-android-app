@@ -27,7 +27,7 @@
         android:theme="@style/Theme.KatanaFlashlight.Splash"
         tools:targetApi="34">
         <service
-            android:name=".FlashlightForegroundService"
+            android:name=".service.FlashlightForegroundService"
             android:foregroundServiceType="camera"
             android:enabled="true"
             android:exported="false" >
