@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Build
-import com.wegielek.katanaflashlight.Prefs
 import com.wegielek.katanaflashlight.domain.FlashlightController
 
 class AndroidFlashlightController(
@@ -41,10 +40,8 @@ class AndroidFlashlightController(
             1
         }
 
-    override fun toggleFlashlight() {
-        val flashOn = Prefs.getFlashOn(context)
-        cameraManager?.setTorchMode(cameraId!!, !flashOn)
-        Prefs.setFlashOn(context, !flashOn)
+    override fun toggleFlashlight(flashOn: Boolean) {
+        cameraManager?.setTorchMode(cameraId!!, flashOn)
     }
 
     override fun setStrength(level: Int) {

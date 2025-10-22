@@ -8,15 +8,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,13 +25,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.NewPrefs.sensitivity
 import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
 fun SlashSensitivity(viewModel: LandingViewModel) {
     val context = LocalContext.current
+    val sensitivity by context.sensitivity.collectAsState(initial = 1f)
 
     val configuration = LocalConfiguration.current
     val padding =
@@ -52,6 +52,7 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
                 .padding(padding)
                 .fillMaxWidth(),
     )
+    Spacer(modifier = Modifier.size(4.dp))
     Box(
         modifier =
             Modifier
@@ -61,8 +62,6 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(color = Color(1f, 1f, 1f, 0.75f)),
     ) {
-        var sensitivity by remember { mutableFloatStateOf(Prefs.getThreshold(context) / 3 - 3) }
-
         Slider(
             colors =
                 SliderDefaults.colors(
@@ -78,9 +77,7 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
                 ),
             value = sensitivity,
             onValueChange = {
-                sensitivity = it
-                val values = listOf(9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39)
-                Prefs.setThreshold(context, values[it.toInt()].toFloat())
+                viewModel.onSensitivityChange(it)
             },
             enabled = true,
             steps = 9,

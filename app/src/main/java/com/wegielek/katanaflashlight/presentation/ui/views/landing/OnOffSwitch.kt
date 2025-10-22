@@ -16,10 +16,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,15 +27,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.NewPrefs.katanaOn
 import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
 fun OnOffSwitch(viewModel: LandingViewModel) {
     val context = LocalContext.current
+    val katanaOn by context.katanaOn.collectAsState(initial = false)
 
-    var isOn by remember { mutableStateOf(Prefs.getKatanaOn(context)) }
+    val hasStrengthLevels by viewModel.hasStrengthLevels.collectAsState()
 
     val configuration = LocalConfiguration.current
     val padding =
@@ -62,13 +61,14 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    if (viewModel.hasStrengthLevels()) {
+                    if (hasStrengthLevels) {
                         padding
                     } else {
                         paddingText
                     },
                 ),
     )
+    Spacer(modifier = Modifier.size(4.dp))
     Box(
         modifier =
             Modifier
@@ -79,7 +79,7 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
                 .padding(end = 8.dp),
     ) {
         Switch(
-            checked = isOn,
+            checked = katanaOn,
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = Color(0.7f, 0f, 0f),
@@ -88,25 +88,14 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && viewModel.hasCameraPermission() &&
                     viewModel.hasNotificationPermission()
                 ) {
-                    isOn = it
                     viewModel.onKatanaSwitch(it)
                 } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && viewModel.hasNotificationPermission()) {
-                    isOn = it
                     viewModel.onKatanaSwitch(it)
                 } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    isOn = it
                     viewModel.onKatanaSwitch(it)
                 } else {
                     Toast.makeText(context, context.getString(R.string.lack_permissions), Toast.LENGTH_SHORT).show()
                     return@Switch
-                }
-
-                if (isOn) {
-                    viewModel.startService()
-                } else {
-                    if (viewModel.isServiceRunning()) {
-                        viewModel.stopService()
-                    }
                 }
             },
             enabled = true,

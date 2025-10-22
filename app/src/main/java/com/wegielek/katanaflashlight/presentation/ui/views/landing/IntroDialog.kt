@@ -20,9 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
@@ -32,14 +32,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.NewPrefs
+import com.wegielek.katanaflashlight.NewPrefs.introDone
 import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IntroDialog(viewModel: LandingViewModel) {
+    val scope = rememberCoroutineScope()
+
     val context = LocalContext.current
+    val introDone by context.introDone.collectAsState(initial = false)
 
     val value by rememberInfiniteTransition(label = "slash animation").animateFloat(
         initialValue = 25f,
@@ -55,13 +60,13 @@ fun IntroDialog(viewModel: LandingViewModel) {
             ),
         label = "slash animation value",
     )
-    val openDialog = remember { mutableStateOf(!Prefs.getIntroDone(context)) }
 
-    if (openDialog.value) {
+    if (!introDone) {
         BasicAlertDialog(
             onDismissRequest = {
-                Prefs.setIntroDone(context, true)
-                openDialog.value = false
+                scope.launch {
+                    NewPrefs.setIntroDone(context, true)
+                }
             },
         ) {
             Surface(

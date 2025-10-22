@@ -28,8 +28,18 @@ import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.wegielek.katanaflashlight.MainActivity
-import com.wegielek.katanaflashlight.Prefs
+import com.wegielek.katanaflashlight.NewPrefs
+import com.wegielek.katanaflashlight.NewPrefs.flashOn
+import com.wegielek.katanaflashlight.NewPrefs.sensitivity
+import com.wegielek.katanaflashlight.NewPrefs.strength
+import com.wegielek.katanaflashlight.NewPrefs.vibrationOn
 import com.wegielek.katanaflashlight.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -37,6 +47,9 @@ class FlashlightForegroundService :
     Service(),
     SensorEventListener {
     private lateinit var wakeLock: PowerManager.WakeLock
+
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(Dispatchers.Default + serviceJob)
 
     private fun isCallActive(context: Context): Boolean {
         val manager = context.getSystemService(AUDIO_SERVICE) as AudioManager
@@ -56,19 +69,19 @@ class FlashlightForegroundService :
         flags: Int,
         startId: Int,
     ): Int {
-        handler = Handler(Looper.getMainLooper())
-
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
         wakeLock =
             powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
-                TAG,
+                LOG_TAG,
             )
         handler.post(acquire())
 
         if (intent?.extras?.getInt("close") == 1) {
             Toast.makeText(this, getString(R.string.katana_dismissed), Toast.LENGTH_SHORT).show()
-            Prefs.setKatanaOn(applicationContext, false)
+            serviceScope.launch {
+                NewPrefs.setKatanaOn(applicationContext, false)
+            }
             stopSelf()
         }
 
@@ -100,10 +113,41 @@ class FlashlightForegroundService :
 
     override fun onDestroy() {
         super.onDestroy()
-        Prefs.setKatanaOn(applicationContext, false)
+
+        handler.removeCallbacks(motionReset1)
+        handler.removeCallbacks(motionReset2)
+        handler.removeCallbacks(motionReset3)
+
+        // Unregister sensor listener
         sensorManager.unregisterListener(this)
-        handler.removeCallbacks(acquire())
-        wakeLock.release()
+
+        // Remove all pending callbacks
+        handler.removeCallbacksAndMessages(null)
+
+        // Safely release wake lock
+        if (wakeLock.isHeld) {
+            wakeLock.release()
+        }
+
+        // Ensure torch is off when service stops
+        serviceScope.launch {
+            try {
+                cameraManager?.setTorchMode(cameraId ?: return@launch, false)
+                NewPrefs.setFlashOn(applicationContext, false)
+            } catch (e: Exception) {
+                Log.e(LOG_TAG, "Failed to turn off torch in onDestroy", e)
+            }
+        }
+
+        // Reset katana state
+        serviceScope.launch {
+            NewPrefs.setKatanaOn(applicationContext, false)
+        }
+
+        // Cancel all coroutines to avoid leaks
+        serviceScope.cancel()
+
+        Log.i(LOG_TAG, "FlashlightForegroundService destroyed")
     }
 
     private fun startForegroundService() {
@@ -162,11 +206,11 @@ class FlashlightForegroundService :
 
     companion object {
         private const val CHANNEL_ID = "ForegroundServiceChannel"
-        private val TAG: String = FlashlightForegroundService::class.java.getSimpleName()
+        private val LOG_TAG: String = FlashlightForegroundService::class.java.getSimpleName()
     }
 
     private lateinit var sensorManager: SensorManager
-    private lateinit var handler: Handler
+    private val handler: Handler = Handler(Looper.getMainLooper())
     private var accelerometerSensor: Sensor? = null
 
     private var cameraManager: CameraManager? = null
@@ -195,20 +239,22 @@ class FlashlightForegroundService :
                 Log.i("Sensor data:", "linear acceleration: $x $y $z")
 
                 if (!coolDown) {
-                    if (avg >= Prefs.getThreshold(this)) {
-                        if (motionStep3) {
-                            toggleFlashlight()
-                            motionStep1 = false
-                            motionStep2 = false
-                            motionStep3 = false
-                            coolDown = true
-                            handler.postDelayed({ coolDown = false }, 500)
-                        } else if (motionStep2) {
-                            handler.postDelayed({ handler.post(motionStepThree()) }, 150)
-                        } else if (motionStep1) {
-                            handler.postDelayed({ handler.post(motionStepTwo()) }, 150)
-                        } else {
-                            handler.post(motionStepOne())
+                    serviceScope.launch {
+                        if (avg >= applicationContext.sensitivity.first() * 3 + 7) {
+                            if (motionStep3) {
+                                toggleFlashlight()
+                                motionStep1 = false
+                                motionStep2 = false
+                                motionStep3 = false
+                                coolDown = true
+                                handler.postDelayed({ coolDown = false }, 500)
+                            } else if (motionStep2) {
+                                handler.postDelayed({ triggerMotionStepThree() }, 150)
+                            } else if (motionStep1) {
+                                handler.postDelayed({ triggerMotionStepTwo() }, 150)
+                            } else {
+                                triggerMotionStepOne()
+                            }
                         }
                     }
                 }
@@ -227,25 +273,23 @@ class FlashlightForegroundService :
     private var motionStep2: Boolean = false
     private var motionStep3: Boolean = false
 
-    private fun motionStepOne(): Runnable {
+    private val motionReset1 = Runnable { motionStep1 = false }
+    private val motionReset2 = Runnable { motionStep2 = false }
+    private val motionReset3 = Runnable { motionStep3 = false }
+
+    private fun triggerMotionStepOne() {
         motionStep1 = true
-        return Runnable {
-            handler.postDelayed({ motionStep1 = false }, 200)
-        }
+        handler.postDelayed(motionReset1, 200)
     }
 
-    private fun motionStepTwo(): Runnable {
+    private fun triggerMotionStepTwo() {
         motionStep2 = true
-        return Runnable {
-            handler.postDelayed({ motionStep2 = false }, 200)
-        }
+        handler.postDelayed(motionReset2, 200)
     }
 
-    private fun motionStepThree(): Runnable {
+    private fun triggerMotionStepThree() {
         motionStep3 = true
-        return Runnable {
-            handler.postDelayed({ motionStep3 = false }, 200)
-        }
+        handler.postDelayed(motionReset3, 200)
     }
 
     private fun hasFlashlightStrengthLevels(): Boolean {
@@ -264,34 +308,34 @@ class FlashlightForegroundService :
     }
 
     private fun toggleFlashlight() {
-        if (!Prefs.getFlashOn(this)) {
+        serviceScope.launch {
+            val flashOn = applicationContext.flashOn.first()
+            val vibrationOn = applicationContext.vibrationOn.first()
+            val strength = applicationContext.strength.first()
+            val hasStrengthLevels = hasFlashlightStrengthLevels()
+
             try {
-                if (hasFlashlightStrengthLevels()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (flashOn) {
+                    // Turn off
+                    cameraManager?.setTorchMode(cameraId!!, false)
+                    NewPrefs.setFlashOn(applicationContext, false)
+                } else {
+                    // Turn on
+                    if (hasStrengthLevels && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         try {
-                            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, Prefs.getStrength(this))
+                            cameraManager?.turnOnTorchWithStrengthLevel(cameraId!!, strength)
                         } catch (e: IllegalArgumentException) {
+                            // fallback if unsupported
                             cameraManager?.setTorchMode(cameraId!!, true)
                             e.printStackTrace()
                         }
+                    } else {
+                        cameraManager?.setTorchMode(cameraId!!, true)
                     }
-                } else {
-                    cameraManager?.setTorchMode(cameraId!!, true)
+                    NewPrefs.setFlashOn(applicationContext, true)
                 }
-                Prefs.setFlashOn(this, !Prefs.getFlashOn(this))
-                if (Prefs.getVibrationOn(this)) {
-                    vibrate()
-                }
-            } catch (e: CameraAccessException) {
-                e.printStackTrace()
-            }
-        } else {
-            try {
-                cameraManager?.setTorchMode(cameraId!!, false)
-                Prefs.setFlashOn(this, !Prefs.getFlashOn(this))
-                if (Prefs.getVibrationOn(this)) {
-                    vibrate()
-                }
+
+                if (vibrationOn) vibrate()
             } catch (e: CameraAccessException) {
                 e.printStackTrace()
             }

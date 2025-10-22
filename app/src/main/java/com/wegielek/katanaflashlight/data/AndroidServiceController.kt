@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
-import com.wegielek.katanaflashlight.Prefs
 import com.wegielek.katanaflashlight.domain.ServiceController
 import com.wegielek.katanaflashlight.service.FlashlightForegroundService
 
@@ -12,25 +11,19 @@ class AndroidServiceController(
     private val context: Context,
 ) : ServiceController {
     override fun startFlashlightService() {
-        // Only start if not already marked running
-        if (!Prefs.isFlashlightServiceStarted(context)) {
-            val intent = Intent(context, FlashlightForegroundService::class.java)
-            ContextCompat.startForegroundService(context, intent)
-            Prefs.setFlashlightServiceStarted(context, true)
-        }
+        val intent = Intent(context, FlashlightForegroundService::class.java)
+        ContextCompat.startForegroundService(context, intent)
     }
 
     override fun stopFlashlightService() {
-        // Try to stop the service and update flag
         val intent = Intent(context, FlashlightForegroundService::class.java)
         context.stopService(intent)
-        Prefs.setFlashlightServiceStarted(context, false)
     }
 
     override fun isFlashlightServiceRunning(): Boolean {
         // Prefer persisted flag (fast and consistent). Keep an optional system fallback (best-effort).
-        val flagged = Prefs.isFlashlightServiceStarted(context)
-        if (flagged) return true
+//        val flagged = Prefs.isFlashlightServiceStarted(context)
+//        if (flagged) return true
 
         // Optional fallback (best-effort, may be unreliable on newer Android):
         try {

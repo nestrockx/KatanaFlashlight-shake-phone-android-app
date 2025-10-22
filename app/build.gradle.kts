@@ -85,6 +85,8 @@ dependencies {
     // Liquid Glass
     implementation("com.github.Kyant0:AndroidLiquidGlass:1.0.0-beta03")
 
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -92,4 +94,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 }
