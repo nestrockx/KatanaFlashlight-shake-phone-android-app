@@ -8,7 +8,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -17,10 +16,8 @@ import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
 fun FlashButton(viewModel: LandingViewModel) {
-    val context = LocalContext.current
-
     Button(
-        onClick = { viewModel.updateFlashlight(context, true) },
+        onClick = { viewModel.toggleFlashlight() },
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary),
     ) {
         Image(

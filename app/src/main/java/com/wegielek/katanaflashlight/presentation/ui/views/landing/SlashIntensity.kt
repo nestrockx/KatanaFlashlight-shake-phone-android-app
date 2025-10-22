@@ -31,7 +31,7 @@ import com.wegielek.katanaflashlight.R
 import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
-fun SlashIntensity(viewModel: LandingViewModel) {
+fun SlashSensitivity(viewModel: LandingViewModel) {
     val context = LocalContext.current
 
     val configuration = LocalConfiguration.current
@@ -43,7 +43,7 @@ fun SlashIntensity(viewModel: LandingViewModel) {
         }
 
     Text(
-        text = stringResource(R.string.slash_intensity),
+        text = stringResource(R.string.slash_sensitivity),
         color = Color.White,
         fontSize = 20.sp,
         textAlign = TextAlign.Left,
@@ -61,7 +61,7 @@ fun SlashIntensity(viewModel: LandingViewModel) {
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(color = Color(1f, 1f, 1f, 0.75f)),
     ) {
-        var intensity by remember { mutableFloatStateOf(Prefs.getThreshold(context) / 3 - 3) }
+        var sensitivity by remember { mutableFloatStateOf(Prefs.getThreshold(context) / 3 - 3) }
 
         Slider(
             colors =
@@ -76,10 +76,11 @@ fun SlashIntensity(viewModel: LandingViewModel) {
                         ),
                     thumbColor = Color.Red,
                 ),
-            value = intensity,
+            value = sensitivity,
             onValueChange = {
-                intensity = it
-                viewModel.onIntensityChange(context, it)
+                sensitivity = it
+                val values = listOf(9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39)
+                Prefs.setThreshold(context, values[it.toInt()].toFloat())
             },
             enabled = true,
             steps = 9,

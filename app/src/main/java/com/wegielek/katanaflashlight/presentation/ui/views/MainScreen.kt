@@ -1,5 +1,10 @@
 package com.wegielek.katanaflashlight.presentation.ui.views
 
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -30,7 +35,21 @@ fun MainScreen(
                 }
             })
         }
-        composable(route = Route.ABOUT_SCREEN) {
+        composable(
+            route = Route.ABOUT_SCREEN,
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { it },
+                    animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { it },
+                    animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing),
+                )
+            },
+        ) {
             AboutScreen(
                 navigateToLanding = {
                     navController.navigate(Route.LANDING_SCREEN) {

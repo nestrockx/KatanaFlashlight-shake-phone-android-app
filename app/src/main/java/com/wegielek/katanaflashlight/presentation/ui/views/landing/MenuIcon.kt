@@ -33,7 +33,7 @@ fun MenuIcon(destination: () -> Unit) {
                         onClick = destination,
                         interactionSource = remember { MutableInteractionSource() },
                         indication = ripple(bounded = false),
-                    ).align(Alignment.TopEnd)
+                    ).align(Alignment.TopStart)
                     .padding(8.dp)
                     .size(50.dp)
                     .padding(8.dp),

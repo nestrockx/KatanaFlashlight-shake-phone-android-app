@@ -3,6 +3,9 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.google.firebase.firebase.perf)
 }
 
 android {
@@ -76,6 +79,11 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.navigation)
     implementation(libs.koin.androidx.compose)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.perf)
+
+    // Liquid Glass
+    implementation("com.github.Kyant0:AndroidLiquidGlass:1.0.0-beta03")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

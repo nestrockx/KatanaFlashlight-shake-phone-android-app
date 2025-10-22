@@ -71,7 +71,7 @@ fun VibrationSwitch(viewModel: LandingViewModel) {
                 ),
             onCheckedChange = {
                 isVibrationOn = it
-                viewModel.onVibrationSwitch(context, it)
+                viewModel.onVibrationSwitch(it)
             },
             enabled = true,
             modifier = Modifier.align(Alignment.CenterEnd),

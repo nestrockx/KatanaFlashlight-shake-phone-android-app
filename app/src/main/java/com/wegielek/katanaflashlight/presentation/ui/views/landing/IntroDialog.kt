@@ -34,10 +34,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.wegielek.katanaflashlight.Prefs
 import com.wegielek.katanaflashlight.R
+import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun IntroDialog() {
+fun IntroDialog(viewModel: LandingViewModel) {
     val context = LocalContext.current
 
     val value by rememberInfiniteTransition(label = "slash animation").animateFloat(

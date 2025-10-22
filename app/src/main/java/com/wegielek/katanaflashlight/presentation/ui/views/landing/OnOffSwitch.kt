@@ -62,7 +62,7 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    if (viewModel.hasFlashlightStrengthLevels()) {
+                    if (viewModel.hasStrengthLevels()) {
                         padding
                     } else {
                         paddingText
@@ -85,27 +85,27 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
                     checkedThumbColor = Color(0.7f, 0f, 0f),
                 ),
             onCheckedChange = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && viewModel.checkCameraPermission(context) &&
-                    viewModel.checkNotificationPermission(context)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && viewModel.hasCameraPermission() &&
+                    viewModel.hasNotificationPermission()
                 ) {
                     isOn = it
-                    viewModel.onKatanaSwitch(context, it)
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && viewModel.checkNotificationPermission(context)) {
+                    viewModel.onKatanaSwitch(it)
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && viewModel.hasNotificationPermission()) {
                     isOn = it
-                    viewModel.onKatanaSwitch(context, it)
+                    viewModel.onKatanaSwitch(it)
                 } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                     isOn = it
-                    viewModel.onKatanaSwitch(context, it)
+                    viewModel.onKatanaSwitch(it)
                 } else {
                     Toast.makeText(context, context.getString(R.string.lack_permissions), Toast.LENGTH_SHORT).show()
                     return@Switch
                 }
 
                 if (isOn) {
-                    viewModel.startService(context)
+                    viewModel.startService()
                 } else {
-                    if (viewModel.foregroundService != null) {
-                        context.stopService(viewModel.foregroundService)
+                    if (viewModel.isServiceRunning()) {
+                        viewModel.stopService()
                     }
                 }
             },

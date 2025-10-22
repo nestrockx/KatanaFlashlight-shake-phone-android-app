@@ -39,7 +39,7 @@ fun FlashlightStrengthSlider(viewModel: LandingViewModel) {
             PaddingValues(horizontal = 32.dp)
         }
 
-    if (viewModel.hasFlashlightStrengthLevels()) {
+    if (viewModel.hasStrengthLevels()) {
         Text(
             text = stringResource(R.string.light_strength),
             fontSize = 20.sp,

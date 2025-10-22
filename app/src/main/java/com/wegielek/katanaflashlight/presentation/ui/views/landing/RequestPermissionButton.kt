@@ -12,9 +12,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wegielek.katanaflashlight.R
+import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
-fun RequestPermissionButton(onClick: () -> Unit) {
+fun RequestPermissionButton(
+    viewModel: LandingViewModel,
+    onClick: () -> Unit,
+) {
     Button(onClick = onClick, border = BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary)) {
         Text(text = stringResource(R.string.allow_notification), color = Color.White)
     }

@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.wegielek.katana_flashlight" />
+                  <option name="mobileSdkAppId" value="1:418367956347:android:cb05c3f36c8113f2b949de" />
+                  <option name="projectId" value="katana-flashlight" />
+                  <option name="projectNumber" value="418367956347" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

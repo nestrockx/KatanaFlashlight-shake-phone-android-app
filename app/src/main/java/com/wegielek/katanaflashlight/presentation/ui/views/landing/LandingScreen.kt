@@ -47,7 +47,7 @@ fun LandingScreen(
             isCameraPermissionGranted = isGranted
             if (isGranted) {
                 if (Prefs.getKatanaOn(context)) {
-                    viewModel.startService(context)
+                    viewModel.startService()
                 }
                 val handler = Handler(Looper.getMainLooper())
                 handler.postDelayed({ cameraRequested = true }, 100)
@@ -66,7 +66,7 @@ fun LandingScreen(
                     cameraLauncher.launch(Manifest.permission.CAMERA)
                 } else {
                     if (Prefs.getKatanaOn(context)) {
-                        viewModel.startService(context)
+                        viewModel.startService()
                     }
                     val handler = Handler(Looper.getMainLooper())
                     handler.postDelayed({ notificationRequested = true }, 100)
@@ -75,12 +75,12 @@ fun LandingScreen(
         }
 
     LaunchedEffect(key1 = true) {
-        isNotificationPermissionGranted = viewModel.checkNotificationPermission(context)
-        isCameraPermissionGranted = viewModel.checkCameraPermission(context)
+        isNotificationPermissionGranted = viewModel.hasCameraPermission()
+        isCameraPermissionGranted = viewModel.hasCameraPermission()
     }
 
     LaunchedEffect(Unit) {
-        viewModel.init(context)
+        viewModel.initialize()
     }
 
     Surface(
@@ -90,14 +90,14 @@ fun LandingScreen(
         Wallpaper()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             if (cameraRequested) {
-                IntroDialog()
+                IntroDialog(viewModel)
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (notificationRequested) {
-                IntroDialog()
+                IntroDialog(viewModel)
             }
         } else {
-            IntroDialog()
+            IntroDialog(viewModel)
         }
         Column(
             verticalArrangement = Arrangement.Center,
@@ -111,6 +111,7 @@ fun LandingScreen(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 if (!isNotificationPermissionGranted || !isCameraPermissionGranted) {
                     RequestPermissionButton(
+                        viewModel,
                         onClick = {
                             notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         },
@@ -119,6 +120,7 @@ fun LandingScreen(
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 if (!isNotificationPermissionGranted) {
                     RequestPermissionButton(
+                        viewModel,
                         onClick = {
                             notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                         },
@@ -128,7 +130,7 @@ fun LandingScreen(
             FlashlightStrengthSlider(viewModel)
             OnOffSwitch(viewModel)
             VibrationSwitch(viewModel)
-            SlashIntensity(viewModel)
+            SlashSensitivity(viewModel)
             FlashButton(viewModel)
             Spacer(modifier = Modifier.size(16.dp))
         }

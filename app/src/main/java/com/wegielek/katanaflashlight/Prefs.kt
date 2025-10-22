@@ -8,6 +8,15 @@ object Prefs {
     private fun getPrefs(context: Context): SharedPreferences =
         context.applicationContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE)
 
+    fun isFlashlightServiceStarted(context: Context): Boolean = getPrefs(context).getBoolean("flashlight_service", false)
+
+    fun setFlashlightServiceStarted(
+        context: Context,
+        value: Boolean,
+    ) {
+        getPrefs(context).edit { putBoolean("flashlight_service", value) }
+    }
+
     fun setThreshold(
         context: Context,
         value: Float,

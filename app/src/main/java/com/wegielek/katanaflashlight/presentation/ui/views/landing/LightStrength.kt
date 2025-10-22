@@ -16,9 +16,7 @@ import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
 fun LightStrength(viewModel: LandingViewModel) {
-    val context = LocalContext.current
-
-    var strength by remember { mutableFloatStateOf(viewModel.getFlashlightMaximumStrengthLevel(context).toFloat()) }
+    var strength by remember { mutableFloatStateOf(viewModel.getMaxStrengthLevel().toFloat()) }
 
     Slider(
         colors =
@@ -36,18 +34,18 @@ fun LightStrength(viewModel: LandingViewModel) {
         value = strength,
         onValueChange = {
             strength = it
-            viewModel.onStrengthChange(context, it.toInt())
+            viewModel.onStrengthChange(it.toInt())
         },
         enabled = true,
         steps =
-            if (viewModel.getFlashlightMaximumStrengthLevel(context) - 2 >
+            if (viewModel.getMaxStrengthLevel() - 2 >
                 0
             ) {
-                viewModel.getFlashlightMaximumStrengthLevel(context) - 2
+                viewModel.getMaxStrengthLevel() - 2
             } else {
                 1
             },
-        valueRange = 1f..viewModel.getFlashlightMaximumStrengthLevel(context).toFloat(),
+        valueRange = 1f..viewModel.getMaxStrengthLevel().toFloat(),
         modifier =
             Modifier
                 .padding(16.dp),

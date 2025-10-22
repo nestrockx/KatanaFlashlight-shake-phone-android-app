@@ -3,7 +3,7 @@
     <string name="version">Wersja 1.1</string>
     <string name="app_name">Katana Latarka</string>
     <string name="title_activity_main">Katana</string>
-    <string name="slash_intensity">Dostosuj czułość potrząśnięcia</string>
+    <string name="slash_sensitivity">Dostosuj czułość potrząśnięcia</string>
     <string name="katana_is_running">Wykrywanie potrząśnięć telefonu jest włączone</string>
     <string name="katana_dismissed">Wykrywanie potrząśnięć zostało wyłączone</string>
     <string name="vibrations">Wibracje</string>
