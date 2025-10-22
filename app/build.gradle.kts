@@ -17,9 +17,9 @@ android {
         versionName = "1.11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
-        }
+//        vectorDrawables {
+//            useSupportLibrary = true
+//        }
     }
 
     buildTypes {
@@ -44,9 +44,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.6"
     }
     packaging {
         resources {
