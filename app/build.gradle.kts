@@ -2,16 +2,17 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktlint)
 }
 
 android {
-    namespace = "com.wegielek.katana_flashlight"
-    compileSdk = 35
+    namespace = "com.wegielek.katanaflashlight"
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 12
         versionName = "1.11"
 
@@ -26,7 +27,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -34,11 +35,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        target {
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+            }
+        }
     }
     buildFeatures {
-        viewBinding = true
         compose = true
     }
     composeOptions {
@@ -69,6 +73,12 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.work.runtime.ktx)
+
+    // Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.navigation)
+    implementation(libs.koin.androidx.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

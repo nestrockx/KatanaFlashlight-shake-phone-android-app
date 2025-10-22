@@ -1,4 +1,4 @@
-package com.wegielek.katana_flashlight.ui.theme
+package com.wegielek.katanaflashlight.presentation.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

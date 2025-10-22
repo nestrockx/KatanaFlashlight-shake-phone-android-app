@@ -1,4 +1,4 @@
-package com.wegielek.katana_flashlight
+package com.wegielek.katanaflashlight
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -30,8 +30,9 @@ import androidx.core.content.ContextCompat
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class FlashlightForegroundService : Service(), SensorEventListener {
-
+class FlashlightForegroundService :
+    Service(),
+    SensorEventListener {
     private lateinit var wakeLock: PowerManager.WakeLock
 
     private fun isCallActive(context: Context): Boolean {
@@ -39,25 +40,27 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         return manager.mode == AudioManager.MODE_IN_CALL
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
-    }
+    override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun acquire(): Runnable{
-        return Runnable {
-            wakeLock.acquire(10*60*1000L)
-            handler.postDelayed(acquire(), 10*60*1000L)
+    private fun acquire(): Runnable =
+        Runnable {
+            wakeLock.acquire(10 * 60 * 1000L)
+            handler.postDelayed(acquire(), 10 * 60 * 1000L)
         }
-    }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onStartCommand(
+        intent: Intent?,
+        flags: Int,
+        startId: Int,
+    ): Int {
         handler = Handler(Looper.getMainLooper())
 
         val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(
-            PowerManager.PARTIAL_WAKE_LOCK,
-            TAG
-        )
+        wakeLock =
+            powerManager.newWakeLock(
+                PowerManager.PARTIAL_WAKE_LOCK,
+                TAG,
+            )
         handler.post(acquire())
 
         if (intent?.extras?.getInt("close") == 1) {
@@ -84,7 +87,7 @@ class FlashlightForegroundService : Service(), SensorEventListener {
             sensorManager.registerListener(
                 this,
                 it,
-                SensorManager.SENSOR_DELAY_NORMAL
+                SensorManager.SENSOR_DELAY_NORMAL,
             )
         }
 
@@ -109,22 +112,26 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         createNotificationChannel()
 
         val notificationIntent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0, notificationIntent, PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                notificationIntent,
+                PendingIntent.FLAG_IMMUTABLE,
+            )
 
         val deleteIntent = Intent(this, FlashlightForegroundService::class.java)
         deleteIntent.putExtra("close", 1)
-        val deletePendingIntent = PendingIntent.getService(
-            this,
-            0,
-            deleteIntent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val deletePendingIntent =
+            PendingIntent.getService(
+                this,
+                0,
+                deleteIntent,
+                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
-
-        return NotificationCompat.Builder(this, CHANNEL_ID)
+        return NotificationCompat
+            .Builder(this, CHANNEL_ID)
             .setContentText(getString(R.string.katana_is_running))
             .setContentIntent(pendingIntent)
             .setSmallIcon(R.drawable.ic_katana_with_handle)
@@ -137,13 +144,14 @@ class FlashlightForegroundService : Service(), SensorEventListener {
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val serviceChannel = NotificationChannel(
-                CHANNEL_ID,
-                "Flashlight Channel",
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                setShowBadge(false)
-            }
+            val serviceChannel =
+                NotificationChannel(
+                    CHANNEL_ID,
+                    "Flashlight Channel",
+                    NotificationManager.IMPORTANCE_LOW,
+                ).apply {
+                    setShowBadge(false)
+                }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(serviceChannel)
         }
@@ -164,7 +172,6 @@ class FlashlightForegroundService : Service(), SensorEventListener {
     override fun onSensorChanged(event: SensorEvent?) {
         if (!isCallActive(this)) {
             if (event?.sensor?.type == Sensor.TYPE_LINEAR_ACCELERATION) {
-
                 val alpha = 0.8f
                 val gravity = FloatArray(3)
                 val linearAccelerationResult = FloatArray(3)
@@ -206,8 +213,10 @@ class FlashlightForegroundService : Service(), SensorEventListener {
         }
     }
 
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-
+    override fun onAccuracyChanged(
+        sensor: Sensor?,
+        accuracy: Int,
+    ) {
     }
 
     private var coolDown: Boolean = false
@@ -238,9 +247,10 @@ class FlashlightForegroundService : Service(), SensorEventListener {
 
     private fun hasFlashlightStrengthLevels(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val x: Int? = cameraManager?.getCameraCharacteristics(cameraId!!)?.get(
-                CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL
-            )
+            val x: Int? =
+                cameraManager?.getCameraCharacteristics(cameraId!!)?.get(
+                    CameraCharacteristics.FLASH_INFO_STRENGTH_MAXIMUM_LEVEL,
+                )
             if (x != null) {
                 if (x > 1) {
                     return true
