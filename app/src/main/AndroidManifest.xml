@@ -37,7 +37,8 @@
             android:exported="true"
             android:label="@string/title_activity_main"
             android:enableOnBackInvokedCallback="true"
-            android:theme="@style/Theme.KatanaFlashlight.Splash" >
+            android:theme="@style/Theme.KatanaFlashlight.Splash"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
