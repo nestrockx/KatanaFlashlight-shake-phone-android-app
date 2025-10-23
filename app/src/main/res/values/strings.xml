@@ -3,12 +3,12 @@
     <string name="version">Version 2.0.0</string>
     <string name="app_name">Katana Flashlight</string>
     <string name="title_activity_main">Katana</string>
-    <string name="slash_sensitivity">Adjust shake sensitivity</string>
+    <string name="slash_sensitivity">Shake sensitivity</string>
     <string name="katana_is_running">Phone shake detection is running</string>
     <string name="katana_dismissed">Katana detection shut down</string>
     <string name="vibrations">Vibrations</string>
     <string name="flashlight_not_available">Flashlight not available</string>
-    <string name="light_strength">Flashlight\'s strength</string>
+    <string name="light_strength">Flash brightness</string>
     <string name="instruction">Perform double fast slash or one longer slash movement with your device to turn on/off the flashlight</string>
     <string name="notification_permission_needed">Notification permission is needed for app to work in background</string>
     <string name="allow_notification">Grant necessary permissions</string>

@@ -30,6 +30,9 @@ android {
                 "proguard-rules.pro",
             )
         }
+        debug {
+            isMinifyEnabled = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -70,6 +73,9 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.work.runtime.ktx)
+
+    // Material icons
+    implementation(libs.androidx.material.icons.extended)
 
     // Koin
     implementation(libs.koin.core)

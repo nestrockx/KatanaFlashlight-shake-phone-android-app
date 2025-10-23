@@ -57,7 +57,10 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
             checked = katanaOn,
             colors =
                 SwitchDefaults.colors(
-                    checkedThumbColor = Color(0.7f, 0f, 0f),
+                    checkedThumbColor = Color(0xFFEF5350),
+                    checkedTrackColor = Color(0xFF461417),
+                    uncheckedThumbColor = Color.LightGray,
+                    uncheckedTrackColor = Color(0xFFBDBDBD),
                 ),
             onCheckedChange = {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE && viewModel.hasCameraPermission() &&

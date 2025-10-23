@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -45,33 +46,30 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
         modifier =
             Modifier
                 .fillMaxWidth()
-                .height(50.dp)
-                .clip(shape = RoundedCornerShape(10.dp))
-                .background(color = Color(1f, 1f, 1f, 0.75f)),
+                .height(60.dp) // slightly taller for breathing space
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color(1f, 1f, 1f, 0.75f))
+                .padding(horizontal = 16.dp, vertical = 8.dp), // padding inside box
     ) {
         Slider(
-            colors =
-                SliderDefaults.colors(
-                    inactiveTrackColor = Color.Black,
-                    activeTrackColor =
-                        Color(
-                            0.8f,
-                            0.0f,
-                            0.0f,
-                            1.0f,
-                        ),
-                    thumbColor = Color.Red,
-                ),
             value = sensitivity,
-            onValueChange = {
-                viewModel.onSensitivityChange(it)
-            },
-            enabled = true,
-            steps = 9,
+            onValueChange = { viewModel.onSensitivityChange(it) },
             valueRange = 0f..10f,
+            steps = 9,
+            enabled = true,
             modifier =
                 Modifier
-                    .padding(16.dp),
+                    .fillMaxWidth()
+                    .align(Alignment.Center),
+            // center slider inside the box
+            colors =
+                SliderDefaults.colors(
+                    thumbColor = Color.Red,
+                    activeTrackColor = Color(0xFFEF5350),
+                    inactiveTrackColor = Color(0xFFBDBDBD),
+                    activeTickColor = Color.White,
+                    inactiveTickColor = Color.Gray,
+                ),
         )
     }
     Spacer(modifier = Modifier.padding(10.dp))

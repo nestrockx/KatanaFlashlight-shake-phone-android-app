@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -48,20 +49,22 @@ fun VibrationSwitch(viewModel: LandingViewModel) {
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .background(shape = RoundedCornerShape(8.dp), color = Color(1f, 1f, 1f, 0.75f))
+                .clip(RoundedCornerShape(8.dp))
+                .background(color = Color(1f, 1f, 1f, 0.75f))
                 .padding(end = 8.dp),
     ) {
         Switch(
             checked = vibrationOn,
-            colors =
-                SwitchDefaults.colors(
-                    checkedThumbColor = Color(0.7f, 0f, 0f),
-                ),
-            onCheckedChange = {
-                viewModel.onVibrationSwitch(it)
-            },
+            onCheckedChange = { viewModel.onVibrationSwitch(it) },
             enabled = true,
             modifier = Modifier.align(Alignment.CenterEnd),
+            colors =
+                SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFFEF5350),
+                    checkedTrackColor = Color(0xFF461417),
+                    uncheckedThumbColor = Color.LightGray,
+                    uncheckedTrackColor = Color(0xFFBDBDBD),
+                ),
         )
     }
     Spacer(modifier = Modifier.size(10.dp))

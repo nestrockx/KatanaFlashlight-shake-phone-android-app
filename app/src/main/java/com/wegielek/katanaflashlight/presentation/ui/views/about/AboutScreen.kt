@@ -45,7 +45,7 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                     Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = ripple(bounded = false),
+                            indication = ripple(bounded = false, color = Color.White),
                             onClick = navigateToLanding,
                         ).align(Alignment.TopStart)
                         .padding(8.dp)
