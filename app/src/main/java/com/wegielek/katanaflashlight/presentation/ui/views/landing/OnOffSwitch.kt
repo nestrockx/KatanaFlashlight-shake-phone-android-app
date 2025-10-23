@@ -33,8 +33,6 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
     val context = LocalContext.current
     val katanaOn by context.katanaOn.collectAsState(initial = false)
 
-    val hasStrengthLevels by viewModel.hasStrengthLevels.collectAsState()
-
     Text(
         text = stringResource(R.string.on_off),
         fontSize = 20.sp,
