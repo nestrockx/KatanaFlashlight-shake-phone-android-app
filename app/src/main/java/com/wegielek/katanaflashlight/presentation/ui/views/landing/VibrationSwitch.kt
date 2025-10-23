@@ -19,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,14 +33,6 @@ fun VibrationSwitch(viewModel: LandingViewModel) {
     val context = LocalContext.current
     val vibrationOn by context.vibrationOn.collectAsState(initial = false)
 
-    val configuration = LocalConfiguration.current
-    val padding =
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            PaddingValues(horizontal = 96.dp)
-        } else {
-            PaddingValues(horizontal = 32.dp)
-        }
-
     Text(
         text = stringResource(R.string.vibrations),
         fontSize = 20.sp,
@@ -49,8 +40,7 @@ fun VibrationSwitch(viewModel: LandingViewModel) {
         textAlign = TextAlign.Left,
         modifier =
             Modifier
-                .fillMaxWidth()
-                .padding(padding),
+                .fillMaxWidth(),
     )
     Spacer(modifier = Modifier.size(4.dp))
     Box(
@@ -58,7 +48,6 @@ fun VibrationSwitch(viewModel: LandingViewModel) {
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(padding)
                 .background(shape = RoundedCornerShape(8.dp), color = Color(1f, 1f, 1f, 0.75f))
                 .padding(end = 8.dp),
     ) {

@@ -59,7 +59,7 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                         .align(Alignment.BottomCenter),
             ) {
                 HyperlinkText(
-                    fullText = "Icons made from https://www.onlinewebfonts.com/icon svg icons is licensed by CC BY 4.0",
+                    fullText = "Icon assets from https://www.onlinewebfonts.com/icon used under CC BY 4.0",
                     linkText = listOf("https://www.onlinewebfonts.com/icon"),
                     hyperlinks = listOf("https://www.onlinewebfonts.com/icon"),
                     modifier =
@@ -67,7 +67,7 @@ fun AboutScreen(navigateToLanding: () -> Unit) {
                             .padding(16.dp)
                             .fillMaxWidth(),
                     fontSize = 16.sp,
-                    linkTextColor = Color(0.0f, 0.184f, 0.733f, 1.0f),
+                    linkTextColor = Color(1.0f, 0.44313726f, 0.44313726f, 1.0f),
                 )
                 Text(
                     text = stringResource(R.string.version),

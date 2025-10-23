@@ -28,23 +28,7 @@ import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 
 @Composable
 fun FlashlightStrengthSlider(viewModel: LandingViewModel) {
-    val context = LocalContext.current
-
     val hasStrengthLevels by viewModel.hasStrengthLevels.collectAsState()
-
-    val configuration = LocalConfiguration.current
-    val padding =
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            PaddingValues(horizontal = 96.dp)
-        } else {
-            PaddingValues(horizontal = 32.dp)
-        }
-    val paddingText =
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            PaddingValues(start = 96.dp, end = 96.dp, top = 64.dp)
-        } else {
-            PaddingValues(horizontal = 32.dp)
-        }
 
     if (hasStrengthLevels) {
         Text(
@@ -54,8 +38,7 @@ fun FlashlightStrengthSlider(viewModel: LandingViewModel) {
             textAlign = TextAlign.Left,
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .padding(paddingText),
+                    .fillMaxWidth(),
         )
         Spacer(modifier = Modifier.size(4.dp))
         Box(
@@ -63,7 +46,6 @@ fun FlashlightStrengthSlider(viewModel: LandingViewModel) {
                 Modifier
                     .fillMaxWidth()
                     .height(50.dp)
-                    .padding(padding)
                     .clip(shape = RoundedCornerShape(10.dp))
                     .background(color = Color(1f, 1f, 1f, 0.75f)),
         ) {

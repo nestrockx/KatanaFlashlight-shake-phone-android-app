@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -24,10 +23,8 @@ fun LightStrength(viewModel: LandingViewModel) {
     val storedStrength by context.strength.collectAsState(initial = 1)
     val maxStrength by viewModel.maxStrengthLevel.collectAsState()
 
-    // Keep local copy for smooth slider movement
     var sliderValue by remember { mutableFloatStateOf(storedStrength.toFloat()) }
 
-    // Sync DataStore updates into local state when they change externally
     LaunchedEffect(storedStrength) {
         if (storedStrength != sliderValue.toInt()) {
             sliderValue = storedStrength.toFloat()

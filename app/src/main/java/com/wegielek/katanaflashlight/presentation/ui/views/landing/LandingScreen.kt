@@ -1,15 +1,18 @@
 package com.wegielek.katanaflashlight.presentation.ui.views.landing
 
 import android.Manifest
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -18,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,8 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.wegielek.katanaflashlight.presentation.ui.views.Wallpaper
 import com.wegielek.katanaflashlight.presentation.viewmodels.LandingViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -37,9 +44,16 @@ fun LandingScreen(
     viewModel: LandingViewModel = koinViewModel(),
     navigateToAbout: () -> Unit,
 ) {
-    val context = LocalContext.current
+    val configuration = LocalConfiguration.current
+    val hasCameraPermission by viewModel.hasCameraPermission.collectAsState()
+    val hasNotificationPermission by viewModel.hasNotificationPermission.collectAsState()
+    val padding =
+        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            96.dp
+        } else {
+            32.dp
+        }
 
-    val isCameraPermissionGranted by viewModel.hasCameraPermission.collectAsState()
     var cameraRequested by remember { mutableStateOf(false) }
     val cameraLauncher =
         rememberLauncherForActivityResult(
@@ -53,7 +67,6 @@ fun LandingScreen(
             }
         }
 
-    val isNotificationPermissionGranted by viewModel.hasNotificationPermission.collectAsState()
     var notificationRequested by remember { mutableStateOf(false) }
     val notificationLauncher =
         rememberLauncherForActivityResult(
@@ -70,6 +83,24 @@ fun LandingScreen(
                 }
             }
         }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_STOP) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasNotificationPermission) {
+                        viewModel.stopService()
+                    }
+                }
+            }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.initialize()
@@ -91,45 +122,51 @@ fun LandingScreen(
         } else {
             IntroDialog(viewModel)
         }
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier =
-                Modifier
-                    .wrapContentHeight()
-                    .verticalScroll(rememberScrollState()),
-        ) {
-            Spacer(modifier = Modifier.size(16.dp))
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                if (!isNotificationPermissionGranted || !isCameraPermissionGranted) {
-                    RequestPermissionButton(
-                        viewModel,
-                        onClick = {
-                            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        },
-                    )
-                }
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                if (!isNotificationPermissionGranted) {
-                    RequestPermissionButton(
-                        viewModel,
-                        onClick = {
-                            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        },
-                    )
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+            MenuIcon(navigateToAbout)
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier =
+                        Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = padding),
+                ) {
+                    Spacer(modifier = Modifier.size(16.dp))
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                        if (!hasNotificationPermission || !hasCameraPermission) {
+                            RequestPermissionButton(
+                                viewModel,
+                                onClick = {
+                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                },
+                            )
+                        }
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (!hasNotificationPermission) {
+                            RequestPermissionButton(
+                                viewModel,
+                                onClick = {
+                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                },
+                            )
+                        }
+                    }
+                    FlashlightStrengthSlider(viewModel)
+                    Spacer(Modifier.padding(4.dp))
+                    OnOffSwitch(viewModel)
+                    Spacer(Modifier.padding(4.dp))
+                    VibrationSwitch(viewModel)
+                    Spacer(Modifier.padding(4.dp))
+                    SlashSensitivity(viewModel)
+                    Spacer(Modifier.padding(4.dp))
+                    FlashButton(viewModel)
+                    Spacer(modifier = Modifier.size(16.dp))
                 }
             }
-            FlashlightStrengthSlider(viewModel)
-            Spacer(Modifier.padding(4.dp))
-            OnOffSwitch(viewModel)
-            Spacer(Modifier.padding(4.dp))
-            VibrationSwitch(viewModel)
-            Spacer(Modifier.padding(4.dp))
-            SlashSensitivity(viewModel)
-            Spacer(Modifier.padding(4.dp))
-            FlashButton(viewModel)
-            Spacer(modifier = Modifier.size(16.dp))
         }
-        MenuIcon(navigateToAbout)
     }
 }

@@ -45,9 +45,9 @@ class LandingViewModel(
 
     fun startService() {
         viewModelScope.launch {
+            NewPrefs.setKatanaOn(appContext, true)
             if (!isServiceRunning()) {
                 service.startFlashlightService()
-                NewPrefs.setKatanaOn(appContext, true)
             }
         }
     }
@@ -56,8 +56,10 @@ class LandingViewModel(
 
     fun stopService() {
         viewModelScope.launch {
-            service.stopFlashlightService()
             NewPrefs.setKatanaOn(appContext, false)
+            if (isServiceRunning()) {
+                service.stopFlashlightService()
+            }
         }
     }
 
@@ -107,9 +109,7 @@ class LandingViewModel(
         if (enabled) {
             startService()
         } else {
-            if (isServiceRunning()) {
-                stopService()
-            }
+            stopService()
         }
     }
 }

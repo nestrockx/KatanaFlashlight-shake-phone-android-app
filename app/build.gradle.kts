@@ -16,13 +16,10 @@ android {
         applicationId = "com.wegielek.katana_flashlight"
         minSdk = 24
         targetSdk = 36
-        versionCode = 12
-        versionName = "1.11"
+        versionCode = 13
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-//        vectorDrawables {
-//            useSupportLibrary = true
-//        }
     }
 
     buildTypes {
@@ -83,9 +80,10 @@ dependencies {
     implementation(libs.firebase.perf)
 
     // Liquid Glass
-    implementation("com.github.Kyant0:AndroidLiquidGlass:1.0.0-beta03")
+//    implementation("com.github.Kyant0:AndroidLiquidGlass:1.0.0-rc01")
 
-    implementation("androidx.datastore:datastore-preferences:1.1.7")
+    // Data Store
+    implementation(libs.androidx.datastore.preferences)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -94,5 +92,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+    debugImplementation(libs.leakcanary.android)
 }

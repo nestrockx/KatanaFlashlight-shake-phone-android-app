@@ -51,8 +51,8 @@ class FlashlightForegroundService :
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.Default + serviceJob)
 
-    private fun isCallActive(context: Context): Boolean {
-        val manager = context.getSystemService(AUDIO_SERVICE) as AudioManager
+    private fun isCallActive(): Boolean {
+        val manager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
         return manager.mode == AudioManager.MODE_IN_CALL
     }
 
@@ -69,7 +69,7 @@ class FlashlightForegroundService :
         flags: Int,
         startId: Int,
     ): Int {
-        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+        val powerManager = applicationContext.getSystemService(POWER_SERVICE) as PowerManager
         wakeLock =
             powerManager.newWakeLock(
                 PowerManager.PARTIAL_WAKE_LOCK,
@@ -89,7 +89,7 @@ class FlashlightForegroundService :
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
 
         if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-            cameraManager = getSystemService(CAMERA_SERVICE) as CameraManager?
+            cameraManager = applicationContext.getSystemService(CAMERA_SERVICE) as CameraManager?
             try {
                 cameraId = cameraManager?.cameraIdList?.get(0)
             } catch (e: CameraAccessException) {
@@ -217,7 +217,7 @@ class FlashlightForegroundService :
     private var cameraId: String? = null
 
     override fun onSensorChanged(event: SensorEvent?) {
-        if (!isCallActive(this)) {
+        if (!isCallActive()) {
             if (event?.sensor?.type == Sensor.TYPE_LINEAR_ACCELERATION) {
                 val alpha = 0.8f
                 val gravity = FloatArray(3)

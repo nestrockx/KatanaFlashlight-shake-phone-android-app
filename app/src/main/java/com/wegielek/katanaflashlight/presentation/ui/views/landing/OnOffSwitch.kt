@@ -1,11 +1,9 @@
 package com.wegielek.katanaflashlight.presentation.ui.views.landing
 
-import android.content.res.Configuration
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -38,20 +35,6 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
 
     val hasStrengthLevels by viewModel.hasStrengthLevels.collectAsState()
 
-    val configuration = LocalConfiguration.current
-    val padding =
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            PaddingValues(horizontal = 96.dp)
-        } else {
-            PaddingValues(horizontal = 32.dp)
-        }
-    val paddingText =
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            PaddingValues(start = 96.dp, end = 96.dp, top = 64.dp)
-        } else {
-            PaddingValues(horizontal = 32.dp)
-        }
-
     Text(
         text = stringResource(R.string.on_off),
         fontSize = 20.sp,
@@ -59,14 +42,7 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
         textAlign = TextAlign.Left,
         modifier =
             Modifier
-                .fillMaxWidth()
-                .padding(
-                    if (hasStrengthLevels) {
-                        padding
-                    } else {
-                        paddingText
-                    },
-                ),
+                .fillMaxWidth(),
     )
     Spacer(modifier = Modifier.size(4.dp))
     Box(
@@ -74,7 +50,6 @@ fun OnOffSwitch(viewModel: LandingViewModel) {
             Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(padding)
                 .background(shape = RoundedCornerShape(8.dp), color = Color(1f, 1f, 1f, 0.75f))
                 .padding(end = 8.dp),
     ) {

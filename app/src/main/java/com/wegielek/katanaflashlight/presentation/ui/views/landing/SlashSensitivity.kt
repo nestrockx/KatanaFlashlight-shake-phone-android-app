@@ -1,9 +1,7 @@
 package com.wegielek.katanaflashlight.presentation.ui.views.landing
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,14 +31,6 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
     val context = LocalContext.current
     val sensitivity by context.sensitivity.collectAsState(initial = 1f)
 
-    val configuration = LocalConfiguration.current
-    val padding =
-        if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            PaddingValues(horizontal = 96.dp)
-        } else {
-            PaddingValues(horizontal = 32.dp)
-        }
-
     Text(
         text = stringResource(R.string.slash_sensitivity),
         color = Color.White,
@@ -49,7 +38,6 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
         textAlign = TextAlign.Left,
         modifier =
             Modifier
-                .padding(padding)
                 .fillMaxWidth(),
     )
     Spacer(modifier = Modifier.size(4.dp))
@@ -58,7 +46,6 @@ fun SlashSensitivity(viewModel: LandingViewModel) {
             Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .padding(padding)
                 .clip(shape = RoundedCornerShape(10.dp))
                 .background(color = Color(1f, 1f, 1f, 0.75f)),
     ) {

@@ -24,7 +24,7 @@ fun HyperlinkText(
     linkTextColor: Color = Color.Blue,
     linkTextFontWeight: FontWeight = FontWeight.Medium,
     linkTextDecoration: TextDecoration = TextDecoration.Underline,
-    hyperlinks: List<String> = listOf("https://stevdza-san.com"),
+    hyperlinks: List<String> = listOf(""),
     fontSize: TextUnit = TextUnit.Unspecified,
 ) {
     val annotatedString =
