@@ -21,11 +21,6 @@ class AndroidServiceController(
     }
 
     override fun isFlashlightServiceRunning(): Boolean {
-        // Prefer persisted flag (fast and consistent). Keep an optional system fallback (best-effort).
-//        val flagged = Prefs.isFlashlightServiceStarted(context)
-//        if (flagged) return true
-
-        // Optional fallback (best-effort, may be unreliable on newer Android):
         try {
             val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             val services = manager.getRunningServices(Int.MAX_VALUE)
