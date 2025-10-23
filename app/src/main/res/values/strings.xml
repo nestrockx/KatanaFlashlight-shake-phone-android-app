@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="version">Version 1.1</string>
+    <string name="version">Version 2.0.0</string>
     <string name="app_name">Katana Flashlight</string>
     <string name="title_activity_main">Katana</string>
     <string name="slash_sensitivity">Adjust shake sensitivity</string>
