@@ -24,7 +24,6 @@ object NewPrefs {
     private val MAX_STRENGTH_KEY = intPreferencesKey("max_strength")
     private val INTRO_KEY = booleanPreferencesKey("intro")
 
-    // --- Read functions (Flows) ---
     val Context.isFlashlightServiceStarted: Flow<Boolean>
         get() = dataStore.data.map { it[FLASHLIGHT_SERVICE_KEY] ?: false }
 
@@ -49,7 +48,6 @@ object NewPrefs {
     val Context.introDone: Flow<Boolean>
         get() = dataStore.data.map { it[INTRO_KEY] ?: false }
 
-    // --- Write functions (suspend) ---
     suspend fun setFlashlightServiceStarted(
         context: Context,
         value: Boolean,
@@ -89,10 +87,7 @@ object NewPrefs {
         context: Context,
         value: Int,
     ) {
-//        val maxStrength = context.maximumStrength.first()
-//        if (value in 1..maxStrength) {
         context.dataStore.edit { it[STRENGTH_KEY] = value }
-//        }
     }
 
     suspend fun setMaximumStrength(
