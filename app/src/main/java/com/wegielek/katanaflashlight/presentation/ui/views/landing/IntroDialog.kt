@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +45,7 @@ fun IntroDialog(viewModel: LandingViewModel) {
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
-    val introDone by context.introDone.collectAsState(initial = false)
+    val introDone by context.introDone.collectAsState(initial = true)
 
     val value by rememberInfiniteTransition(label = "slash animation").animateFloat(
         initialValue = 25f,
@@ -60,6 +61,10 @@ fun IntroDialog(viewModel: LandingViewModel) {
             ),
         label = "slash animation value",
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.startService()
+    }
 
     if (!introDone) {
         BasicAlertDialog(

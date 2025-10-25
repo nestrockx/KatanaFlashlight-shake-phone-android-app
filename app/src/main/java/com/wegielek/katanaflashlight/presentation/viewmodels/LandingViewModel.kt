@@ -18,6 +18,20 @@ class LandingViewModel(
     private val permissions: PermissionChecker,
     private val service: ServiceController,
 ) : ViewModel() {
+    var olderAndroidInit = MutableStateFlow(false)
+        private set
+    var olderAndroidClicked = MutableStateFlow(false)
+        private set
+
+    fun clickStart() {
+        olderAndroidClicked.value = true
+        olderAndroidInit.value = false
+    }
+
+    fun setOldAndroidInit(value: Boolean) {
+        olderAndroidInit.value = value
+    }
+
     var hasStrengthLevels = MutableStateFlow(false)
         private set
     var maxStrengthLevel = MutableStateFlow(1)
